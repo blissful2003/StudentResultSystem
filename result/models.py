@@ -102,12 +102,17 @@ class Student(models.Model):
         unique_together = ['roll_number', 'class_name']
         ordering = ['class_name', 'roll_number']
 
+
 class Marks(models.Model):
     student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name='marks'
+        Student,
+        on_delete=models.CASCADE,
+        related_name='marks'
     )
+
     subject = models.ForeignKey(
-        Subject, on_delete=models.CASCADE
+        Subject,
+        on_delete=models.CASCADE
     )
 
     theory_obtained = models.FloatField(
@@ -119,6 +124,7 @@ class Marks(models.Model):
     )
 
     marks_obtained = models.FloatField(
+        default=0,
         validators=[MinValueValidator(0.0)]
     )
 
@@ -139,6 +145,7 @@ class Marks(models.Model):
         )
 
         p = self.percentage
+
         if p >= 90:
             self.grade = 'A+'
         elif p >= 80:

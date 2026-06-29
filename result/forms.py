@@ -72,19 +72,58 @@ class StudentForm(forms.ModelForm):
 class MarksForm(forms.ModelForm):
     class Meta:
         model = Marks
-        fields = ['student', 'subject',
-                  'theory_obtained', 'practical_obtained']
+        fields = ['student', 'subject', 'theory_obtained', 'practical_obtained']
         widgets = {
             'student': forms.Select(attrs={'class': 'form-select'}),
             'subject': forms.Select(attrs={'class': 'form-select'}),
             'theory_obtained': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': '0'
+                'class': 'form-control',
+                'placeholder': '0'
             }),
             'practical_obtained': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': '0'
+                'class': 'form-control',
+                'placeholder': '0'
             }),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        subject = cleaned_data.get('subject')
+        theory = cleaned_data.get('theory_obtained')
+        practical = cleaned_data.get('practical_obtained')
+
+        if not subject:
+            return cleaned_data
+
+        if theory is None:
+            theory = 0
+
+        if practical is None:
+            practical = 0
+
+        # Theory marks validation
+        if theory > subject.theory_marks:
+            self.add_error(
+                'theory_obtained',
+                f'Theory marks cannot exceed {subject.theory_marks}.'
+            )
+
+        # Practical marks validation
+        if practical > subject.practical_marks:
+            self.add_error(
+                'practical_obtained',
+                f'Practical marks cannot exceed {subject.practical_marks}.'
+            )
+
+        # Total marks validation
+        total = theory + practical
+        if total > subject.full_marks:
+            raise forms.ValidationError(
+                f'Total marks cannot exceed {subject.full_marks}.'
+            )
+
+        return cleaned_data
 
 class SignupForm(UserCreationForm):
     email = forms.EmailField(required=True)
