@@ -1,0 +1,250 @@
+{% extends 'result/base.html' %}
+{% block content %}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        border-radius: 14px;
+        padding: 1.5rem 2rem;
+        color: white;
+        margin-bottom: 1.5rem;
+    }
+    .page-header h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .page-header p {
+        margin: 0.2rem 0 0;
+        opacity: 0.85;
+        font-size: 0.88rem;
+    }
+    .form-card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+        padding: 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 5px;
+    }
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        border: 1.5px solid #e0e0e0;
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.10);
+    }
+    .section-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #1a73e8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 1.5rem 0 1rem;
+        padding-bottom: 6px;
+        border-bottom: 2px solid #e8f0fe;
+    }
+    .section-title.green {
+        color: #1a8a45;
+        border-bottom-color: #d4f0e0;
+    }
+    .credential-box {
+        background: #f0f7ff;
+        border: 1.5px solid #c2d9f8;
+        border-radius: 12px;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .credential-box .hint {
+        font-size: 0.78rem;
+        color: #666;
+        margin-top: 6px;
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: opacity 0.15s, transform 0.15s;
+        cursor: pointer;
+    }
+    .btn-save:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        color: white;
+    }
+    .btn-cancel {
+        background: #f0f0f0;
+        color: #555;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 24px;
+        font-size: 1rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .btn-cancel:hover {
+        background: #e0e0e0;
+        color: #333;
+    }
+    .error-text {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 3px;
+    }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <h4>{% if edit %}Edit Student{% else %}Add new Student{% endif %}</h4>
+    <p>{% if edit %}Update Student information{% else %}Fill Students details{% endif %}</p>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        {% csrf_token %}
+
+    
+        <div class="section-title">Personal Information</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Roll Number *</label>
+                {{ form.roll_number }}
+                {% for error in form.roll_number.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Gender *</label>
+                {{ form.gender }}
+                {% for error in form.gender.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">First Name *</label>
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Last Name *</label>
+                {{ form.last_name }}
+                {% for error in form.last_name.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Class *</label>
+                {{ form.class_name }}
+                <a href="{% url 'add_class' %}?next=add_student"
+                    style="font-size:0.8rem; color:#1a73e8; text-decoration:none;">
+                    + Add new class
+                </a>
+                {% for error in form.class_name.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Date of Birth *</label>
+                {{ form.date_of_birth }}
+                {% for error in form.date_of_birth.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone *</label>
+                {{ form.phone }}
+                {% for error in form.phone.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        
+        <div class="section-title">Contact Information</div>
+        <div class="row g-3">
+            <div class="col-md-12">
+                <label class="form-label">Email *</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">Address *</label>
+                {{ form.address }}
+                {% for error in form.address.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">Parent's Name*</label>
+                {{ form.parent_name }}
+                {% for error in form.parent_name.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">Parent's Phone*</label>
+                {{ form.parent_phone }}
+                {% for error in form.parent_phone.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">Parent Email*</label>
+                {{ form.parent_email }}
+                {% for error in form.parent_email.errors %}
+                <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        
+    
+<div class="section-title green">Login Credentials</div>
+<div class="credential-box">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" value="Auto: Student ID (STU-2026-001)" disabled>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Password</label>
+            <input type="text" class="form-control" value="Auto: Date of Birth (YYYYMMDD)" disabled>
+        </div>
+    </div>
+    <div class="hint">
+        automatically generate while adding new student .<br>
+        By Student <strong>Student ID</strong> and <strong>Date of Birth (YYYYMMDD)</strong> use to login.
+    </div>
+</div>
+        <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-save">
+                {% if edit %}Update{% else %}Save{% endif %}
+            </button>
+            <a href="{% url 'student_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,289 @@
+{% extends 'result/base.html' %}
+{% block content %}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #e65100, #bf360c);
+        border-radius: 14px;
+        padding: 1.5rem 2rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .page-header p {
+        margin: 0.2rem 0 0;
+        opacity: 0.85;
+        font-size: 0.88rem;
+    }
+
+    .btn-add {
+        background: white;
+        color: #e65100;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 18px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.15s;
+    }
+
+    .btn-add:hover {
+        background: #fff3e0;
+        color: #e65100;
+        transform: translateY(-1px);
+    }
+
+    .stat-pill {
+        background: white;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 1.2rem;
+    }
+
+    .subject-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .subject-card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+        padding: 1.3rem 1.5rem;
+        transition: transform 0.15s, box-shadow 0.15s;
+        border-left: 4px solid #e65100;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+    }
+
+    .subject-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .marks-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+
+    .marks-badge {
+        border-radius: 8px;
+        padding: 4px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .badge-full {
+        background: #e8f0fe;
+        color: #1a73e8;
+    }
+
+    .badge-theory {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .badge-practical {
+        background: #fff3e0;
+        color: #e65100;
+    }
+
+    .badge-pass {
+        background: #fce4ec;
+        color: #c62828;
+    }
+
+    .marks-label {
+        font-size: 0.72rem;
+        color: #aaa;
+        margin-bottom: 2px;
+    }
+
+    .divider-line {
+        border: none;
+        border-top: 1px solid #f5f5f5;
+        margin: 10px 0;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-edit {
+        background: #fff3e0;
+        color: #e65100;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-edit:hover {
+        background: #e65100;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #fce4ec;
+        color: #c62828;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-delete:hover {
+        background: #c62828;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .empty-state .icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #e65100, #bf360c);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+
+    .btn-save:hover {
+        opacity: 0.88;
+        color: white;
+    }
+</style>
+
+
+<div class="page-header">
+    <div>
+        <h4> Sabai Subjects</h4>
+        <p>Defined subjects </p>
+    </div>
+    <a href="{% url 'add_subject' %}" class="btn-add">new Subject</a>
+</div>
+
+
+<div class="stat-pill">
+    Total: <span style="color:#e65100;">{{ subjects.count }} subjects</span>
+</div>
+
+
+{% if subjects %}
+<div class="subject-grid">
+    {% for subject in subjects %}
+    <div class="subject-card">
+
+        <!-- Subject Name -->
+        <div class="subject-name">
+            {{ subject.name }}
+        </div>
+
+
+        <div class="marks-row">
+
+            <div>
+                <div class="marks-label">Full Marks</div>
+                <div class="marks-badge badge-full">{{ subject.full_marks }}</div>
+            </div>
+
+            {% if subject.theory_marks %}
+            <div>
+                <div class="marks-label">Theory</div>
+                <div class="marks-badge badge-theory">{{ subject.theory_marks }}</div>
+            </div>
+            {% endif %}
+
+            {% if subject.practical_marks %}
+            <div>
+                <div class="marks-label">Practical</div>
+                <div class="marks-badge badge-practical">{{ subject.practical_marks }}</div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div class="marks-label">Pass Marks</div>
+                <div class="marks-badge badge-pass">{{ subject.pass_marks }}</div>
+            </div>
+
+        </div>
+
+        <hr class="divider-line">
+
+        <!-- Actions -->
+        <div class="action-btns">
+            <a href="{% url 'edit_subject' subject.pk %}" class="btn-edit"> Edit</a>
+            <a href="{% url 'delete_subject' subject.pk %}" class="btn-delete"> Delete</a>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <div class="icon"> </div>
+    <p style="font-size:0.95rem; color:#555; margin-bottom:1rem;">
+        Subject didn't added yet
+    </p>
+    <a href="{% url 'add_subject' %}" class="btn-save">Add first Subject</a>
+</div>
+{% endif %}
+
+{% endblock %}

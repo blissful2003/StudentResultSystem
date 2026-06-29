@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Student Result</title>
+</head>
+
+<body>
+    <h2>Add Student Result</h2>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <input name="roll" placeholder="Student Roll Number"><br>
+        <input name="subject" placeholder="Subject"><br>
+        <input name="marks" placeholder="Marks Obtained"><br>
+        <button type="submit">Save</button>
+    </form>
+</body>
+
+</html>

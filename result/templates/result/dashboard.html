@@ -1,0 +1,283 @@
+{% extends 'result/base.html' %}
+{% block content %}
+
+<style>
+    .stat-card {
+        border-radius: 12px;
+        padding: 1.4rem 1.5rem;
+        border: none;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        line-height: 1.1;
+        margin: 0.3rem 0 0.1rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        opacity: 0.75;
+    }
+
+    .quick-btn {
+        border-radius: 10px;
+        padding: 0.9rem 1.2rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.15s ease;
+        border: 2px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+
+    .quick-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #444;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-bar {
+        background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+        border-radius: 14px;
+        color: white;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .welcome-bar h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .welcome-bar p {
+        margin: 0.2rem 0 0;
+        opacity: 0.85;
+        font-size: 0.9rem;
+    }
+
+    .pass-bar-wrap {
+        background: #f0f0f0;
+        border-radius: 99px;
+        height: 10px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .pass-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        border-radius: 99px;
+        transition: width 0.6s ease;
+    }
+
+    .activity-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+    }
+
+    .activity-row:last-child {
+        border-bottom: none;
+    }
+
+    .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+</style>
+
+
+<div class="welcome-bar">
+    <div>
+        <h4> Welcome, {{ request.user.username|title }}!</h4>
+        <p>Student Result System — Admin Dashboard</p>
+    </div>
+    <a href="{% url 'add_student' %}" class="btn btn-light fw-semibold px-4">
+        + add new student
+    </a>
+</div>
+
+
+<div class="row g-3 mb-4">
+
+
+    <div class="col-6 col-md-3">
+        <div class="stat-card h-100" style="background:#e8f0fe;">
+            <div class="d-flex align-items-start justify-content-between">
+                <div>
+                    <div class="stat-label" style="color:#1a73e8;">Total Students</div>
+                    <div class="stat-number" style="color:#1a73e8;">{{ total_students }}</div>
+                </div>
+                <div class="stat-icon" style="background:#1a73e8; color:white;"> </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-6 col-md-3">
+        <div class="stat-card h-100" style="background:#fff3e0;">
+            <div class="d-flex align-items-start justify-content-between">
+                <div>
+                    <div class="stat-label" style="color:#e65100;">Total Subjects</div>
+                    <div class="stat-number" style="color:#e65100;">{{ total_subjects }}</div>
+                </div>
+                <div class="stat-icon" style="background:#e65100; color:white;"> </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-6 col-md-3">
+        <div class="stat-card h-100" style="background:#e8f5e9;">
+            <div class="d-flex align-items-start justify-content-between">
+                <div>
+                    <div class="stat-label" style="color:#2e7d32;">Pass</div>
+                    <div class="stat-number" style="color:#2e7d32;">{{ pass_count }}</div>
+                </div>
+                <div class="stat-icon" style="background:#2e7d32; color:white;">✅</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-6 col-md-3">
+        <div class="stat-card h-100" style="background:#fce4ec;">
+            <div class="d-flex align-items-start justify-content-between">
+                <div>
+                    <div class="stat-label" style="color:#c62828;">Fail</div>
+                    <div class="stat-number" style="color:#c62828;">{{ fail_count }}</div>
+                </div>
+                <div class="stat-icon" style="background:#c62828; color:white;"> </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% if pass_count or fail_count %}
+<div class="card border-0 shadow-sm rounded-3 mb-4 p-3">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <span class="fw-semibold" style="font-size:0.95rem;">Pass Rate</span>
+        <span class="text-success fw-bold">
+            {% widthratio pass_count pass_count|add:fail_count 100 %}%
+        </span>
+    </div>
+    <div class="pass-bar-fill" style="width: {% widthratio pass_count pass_count|add:fail_count 100 %}%">
+    </div>
+</div>
+<div class="d-flex justify-content-between mt-1" style="font-size:0.8rem; color:#888;">
+    <span>{{ pass_count }} pass</span>
+    <span>{{ fail_count }} fail</span>
+</div>
+{% endif %}
+
+
+<div class="row g-3">
+
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+            <div class="section-title">Quick Actions</div>
+            <div class="d-flex flex-column gap-2">
+                <a href="{% url 'add_student' %}" class="quick-btn" style="background:#e8f0fe; color:#1a73e8;">
+                    <span>Add new student</span>
+                </a>
+                <a href="{% url 'add_subject' %}" class="quick-btn" style="background:#fff3e0; color:#e65100;">
+                    <span>Add new subject</span>
+                </a>
+                <a href="{% url 'add_marks' %}" class="quick-btn" style="background:#e8f5e9; color:#2e7d32;">
+                    <span>Add marks</span>
+                </a>
+                <a href="{% url 'student_list' %}" class="quick-btn" style="background:#f3e5f5; color:#6a1b9a;">
+                    <span>Search all the Students</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+            <div class="section-title"> System information</div>
+
+            <div class="activity-row">
+                <div class="dot" style="background:#1a73e8;"></div>
+                <span style="color:#555;">Total students registered:</span>
+                <strong class="ms-auto">{{ total_students }}</strong>
+            </div>
+            <div class="activity-row">
+                <div class="dot" style="background:#e65100;"></div>
+                <span style="color:#555;">Subjects defined:</span>
+                <strong class="ms-auto">{{ total_subjects }}</strong>
+            </div>
+            <div class="activity-row">
+                <div class="dot" style="background:#2e7d32;"></div>
+                <span style="color:#555;">Pass results:</span>
+                <strong class="ms-auto text-success">{{ pass_count }}</strong>
+            </div>
+            <div class="activity-row">
+                <div class="dot" style="background:#c62828;"></div>
+                <span style="color:#555;">Fail results:</span>
+                <strong class="ms-auto text-danger">{{ fail_count }}</strong>
+            </div>
+
+
+            {% if total_students == 0 %}
+            <div class="text-center mt-3 p-3" style="background:#f8f9fa; border-radius:10px;">
+                <div style="font-size:2rem;"> </div>
+                <p class="mb-1 fw-semibold" style="font-size:0.9rem;">let's get started!</p>
+                <p class="text-muted" style="font-size:0.82rem;">
+                    add student first and then see the result
+                </p>
+                <a href="{% url 'add_student' %}" class="btn btn-primary btn-sm mt-1">Add Students</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Results</title>
+</head>
+
+<body>
+    <h1>Student Results</h1>
+
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Roll</th>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Percentage</th>
+            <th>Grade</th>
+            <th>Status</th>
+        </tr>
+
+        {% for r in results %}
+        <tr>
+            <td>{{ r.Student.first_name }} {{ r.Student.last_name }}</td>
+            <td>{{ r.Student.roll_number }}</td>
+            <td>{{ r.subject.name }}</td>
+            <td>{{ r.marks_obtained }}</td>
+            <td>{{ r.percentage }}</td>
+            <td>{{ r.grade }}</td>
+            <td>{% if r.is_pass %}Pass{% else %}Fail{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">No data found</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>

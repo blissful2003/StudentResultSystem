@@ -1,0 +1,190 @@
+{% extends 'result/base.html' %}
+{% block content %}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        border-radius: 14px;
+        padding: 1.5rem 2rem;
+        color: white;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-header h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .page-header p {
+        margin: 0.2rem 0 0;
+        opacity: 0.85;
+        font-size: 0.88rem;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 auto 1.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 0.9rem;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #aaa;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .info-value {
+        color: #1a1a2e;
+        font-weight: 600;
+    }
+
+    .badge-superuser {
+        background: #e8f0fe;
+        color: #1a73e8;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-staff {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .btn-change-pw {
+        display: block;
+        text-align: center;
+        background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        color: white;
+        border-radius: 10px;
+        padding: 10px 24px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-top: 1.5rem;
+        transition: opacity 0.15s;
+    }
+
+    .btn-change-pw:hover {
+        opacity: 0.9;
+        color: white;
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <h4>👤 My Profile</h4>
+        <p>Account information</p>
+    </div>
+    <a href="{% url 'dashboard' %}"
+        style="background:white; color:#1a73e8; border-radius:10px; padding:7px 16px; text-decoration:none; font-weight:600; font-size:0.9rem;">←
+        Back</a>
+</div>
+
+<div class="profile-card">
+
+
+    <div class="avatar-circle">
+        {{ user.username|first|upper }}
+    </div>
+
+
+    <div class="info-row">
+        <span class="info-label">Username</span>
+        <span class="info-value">{{ user.username }}</span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Full Name</span>
+        <span class="info-value">
+            {% if user.get_full_name %}
+            {{ user.get_full_name }}
+            {% else %}
+            <span style="color:#ccc;">Not set</span>
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">
+            {% if user.email %}
+            {{ user.email }}
+            {% else %}
+            <span style="color:#ccc;">Not set</span>
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Role</span>
+        <span class="info-value">
+            {% if user.is_superuser %}
+            <span class="badge-superuser">⭐ Super Admin</span>
+            {% else %}
+            <span class="badge-staff">Admin</span>
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Joined Date</span>
+        <span class="info-value">{{ user.date_joined|date:"d M Y" }}</span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Last Login</span>
+        <span class="info-value">{{ user.last_login|date:"d M Y, h:i A" }}</span>
+    </div>
+
+    <!-- Change Password Button -->
+    <a href="{% url 'change_password' %}" class="btn-change-pw">
+        Change Password
+    </a>
+
+</div>
+
+{% endblock %}

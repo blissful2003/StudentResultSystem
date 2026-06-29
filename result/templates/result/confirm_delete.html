@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Confirm Delete</title></head>
+<body>
+    <h2>Student Delete Confirmation</h2>
+    
+    <p><strong>{{ student.name }}</strong> you want to delete  permanently?</p>
+    <p> This action may be undo!</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+        <a href="{% url 'student_list' %}">Cancel</a>
+    </form>
+</body>
+</html>
