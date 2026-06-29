@@ -173,3 +173,16 @@ class Marks(models.Model):
 
     class Meta:
         unique_together = ['student', 'subject']
+        
+class Result(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100)
+    marks_obtained = models.FloatField()
+    full_marks = models.FloatField()
+    pass_marks = models.FloatField()
+    class_name = models.CharField(max_length=50)  
+    section = models.CharField(max_length=10)     
+    roll_no = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.student.username} - {self.subject}"

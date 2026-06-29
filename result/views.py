@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Student, Subject, Marks, Class, generate_student_id
+from .models import Result, Student, Subject, Marks, Class, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -294,3 +294,39 @@ def student_own_result(request):
         'total_full': total_full,
         'overall_pct': overall_pct,
     })
+
+@login_required
+def student_result_view(request):
+    student = get_object_or_404(Student, user=request.user)
+    marks_list = Marks.objects.filter(student=student)
+    
+    
+    
+    
+    classmates = Student.objects.filter(class_name=student.class_name).order_by('roll_number')
+    
+    classmates_data = []
+    for classmate in classmates:
+        classmate_marks = Marks.objects.filter(student=classmate)
+        if classmate_marks.exists():
+            # Kun pani subject fail vaye overall fail
+            overall_pass = all(m.is_pass for m in classmate_marks)
+            status = 'Pass'
+        else:
+            overall_pass = None
+            status = 'Pending'
+        
+        classmates_data.append({
+            'name': f"{classmate.first_name} {classmate.last_name}",
+            'roll_number': classmate.roll_number,
+            'is_pass': overall_pass,
+            'status': status,
+            'is_me': classmate == student,  
+        })
+    
+    context = {
+    
+        'classmates_data': classmates_data,
+    }
+    return render(request, 'result.html', context)
+

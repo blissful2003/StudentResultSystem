@@ -344,6 +344,49 @@
 
     </div>
 
+{% if classmates_data %}
+<div class="table-card" style="margin-top: 1.5rem;">
+    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f0f4ff;">
+        <h6 style="margin:0; font-weight:700; color:#1a1a2e;">
+             Class Result Board — {{ student.class_name }}
+        </h6>
+        <p style="margin:0; font-size:0.8rem; color:#aaa;">Name, Roll No ra Pass/Fail status</p>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Roll No</th>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in classmates_data %}
+            <tr {% if c.is_me %}style="background:#e8f0fe; font-weight:700;"{% endif %}>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ c.roll_number }}</td>
+                <td>
+                    {{ c.name }}
+                    {% if c.is_me %}
+                        <span style="font-size:0.75rem; color:#1a73e8; margin-left:6px;">◀ You</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.status == 'Pending' %}
+                        <span class="pass-badge" style="background:#fff3e0; color:#e65100;">⏳ Pending</span>
+                    {% elif c.is_pass %}
+                        <span class="pass-badge pass-true"> Pass</span>
+                    {% else %}
+                        <span class="pass-badge pass-false"> Fail</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
     <div class="site-footer">Student Result Management System</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
