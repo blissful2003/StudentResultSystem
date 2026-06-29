@@ -2,7 +2,7 @@ from dataclasses import field
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 
 
 class Class(models.Model):
@@ -72,12 +72,15 @@ class Student(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, validators=[MinLengthValidator(10)])
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     date_of_birth = models.DateField()
     address = models.TextField()
     parent_name = models.CharField(max_length=100, blank=True)
-    parent_phone = models.CharField(max_length=15, blank=True)
+    parent_phone = models.CharField(
+    max_length=15,
+    validators=[MinLengthValidator(10)]
+)
     parent_email = models.EmailField(blank=True)
 
     class_name = models.ForeignKey(
