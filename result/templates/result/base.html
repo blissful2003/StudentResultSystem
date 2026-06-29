@@ -198,7 +198,7 @@
                     <a href="{% url 'subject_list' %}" class="nav-link-btn">Subjects</a>
                 </div>
 
-                <!-- Profile Dropdown -->
+            
                 <div class="ms-auto mt-2 mt-lg-0 profile-dropdown">
                     <button class="profile-btn" onclick="toggleDropdown()">
                         <div class="profile-avatar">
@@ -209,7 +209,7 @@
                     </button>
 
                     <div class="dropdown-menu-custom" id="profileDropdown">
-                        <!-- Header -->
+                        
                         <div class="dropdown-header">
                             <div class="name">{{ request.user.get_full_name|default:request.user.username }}</div>
                             <div class="role">
@@ -217,21 +217,21 @@
                             </div>
                         </div>
 
-                        <!-- Profile -->
+                        
                         <a href="{% url 'profile' %}" class="dropdown-item-custom">
-                            <span class="icon">👤</span> My Profile
+                            <span class="icon"> </span> My Profile
                         </a>
 
-                        <!-- Change Password -->
+                        
                         <a href="{% url 'change_password' %}" class="dropdown-item-custom">
-                            <span class="icon">🔒</span> Change Password
+                            <span class="icon"> </span> Change Password
                         </a>
 
                         <div class="dropdown-divider"></div>
 
-                        <!-- Logout -->
+                        
                         <a href="{% url 'logout' %}" class="dropdown-item-custom logout">
-                            <span class="icon">🚪</span> Logout
+                            <span class="icon"> </span> Logout
                         </a>
                     </div>
                 </div>
@@ -259,7 +259,7 @@
     </div>
 
     <div class="site-footer">
-        Student Result System &mdash; Developed with Django &amp; Bootstrap
+        Student Result System 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -269,7 +269,7 @@
             menu.classList.toggle('show');
         }
 
-        // बाहिर click गर्दा dropdown बन्द हुन्छ
+        
         document.addEventListener('click', function (e) {
             const dropdown = document.querySelector('.profile-dropdown');
             if (!dropdown.contains(e.target)) {

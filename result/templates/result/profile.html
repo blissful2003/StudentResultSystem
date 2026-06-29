@@ -116,7 +116,7 @@
 
 <div class="page-header">
     <div>
-        <h4>👤 My Profile</h4>
+        <h4> My Profile</h4>
         <p>Account information</p>
     </div>
     <a href="{% url 'dashboard' %}"
@@ -163,7 +163,7 @@
         <span class="info-label">Role</span>
         <span class="info-value">
             {% if user.is_superuser %}
-            <span class="badge-superuser">⭐ Super Admin</span>
+            <span class="badge-superuser"> Super Admin</span>
             {% else %}
             <span class="badge-staff">Admin</span>
             {% endif %}
@@ -180,7 +180,7 @@
         <span class="info-value">{{ user.last_login|date:"d M Y, h:i A" }}</span>
     </div>
 
-    <!-- Change Password Button -->
+    
     <a href="{% url 'change_password' %}" class="btn-change-pw">
         Change Password
     </a>
