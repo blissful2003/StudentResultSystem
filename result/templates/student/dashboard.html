@@ -214,6 +214,28 @@
             color: #6a1b9a;
         }
 
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pass {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-fail {
+            background: #fdecea;
+            color: #c62828;
+        }
+
+        .status-pending {
+            background: #fff8e1;
+            color: #f9a825;
+        }
+
         .site-footer {
             text-align: center;
             color: #aaa;
@@ -231,7 +253,7 @@
             <a class="navbar-brand" href="{% url 'student_dashboard' %}"> Student Panel</a>
             <div class="d-flex align-items-center gap-2 ms-auto">
                 <span style="color:rgba(255,255,255,0.7); font-size:0.85rem;">
-                    👤 {{ request.user.username }}
+                     {{ request.user.username }}
                 </span>
                 <a href="{% url 'student_logout' %}" class="btn-logout">Logout</a>
             </div>
@@ -275,7 +297,7 @@
             </div>
             <div class="summary-card">
                 <div class="label">Classmates</div>
-                <div class="value" style="color:#e65100;">{{ class_students.count }}</div>
+                <div class="value" style="color:#e65100;">{{ class_count }}</div>
             </div>
         </div>
 
@@ -289,6 +311,7 @@
                         <th>Roll No</th>
                         <th>Name</th>
                         <th>Gender</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -303,17 +326,19 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="gender-badge
-                            {% if s.gender == 'Male' %}gender-male
-                            {% elif s.gender == 'Female' %}gender-female
-                            {% else %}gender-other{% endif %}">
+                            <span class="gender-badge {% if s.gender == 'Male' %}gender-male{% elif s.gender == 'Female' %}gender-female{% else %}gender-other{% endif %}">
                                 {{ s.gender }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if s.status == 'Pass' %}status-pass{% elif s.status == 'Fail' %}status-fail{% else %}status-pending{% endif %}">
+                                {{ s.status }}
                             </span>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" style="text-align:center; color:#aaa; padding:2rem;">
+                        <td colspan="5" style="text-align:center; color:#aaa; padding:2rem;">
                             No students in this class yet.
                         </td>
                     </tr>

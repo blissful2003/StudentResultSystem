@@ -102,21 +102,21 @@ class MarksForm(forms.ModelForm):
         if practical is None:
             practical = 0
 
-        # Theory marks validation
+        
         if theory > subject.theory_marks:
             self.add_error(
                 'theory_obtained',
                 f'Theory marks cannot exceed {subject.theory_marks}.'
             )
 
-        # Practical marks validation
+        
         if practical > subject.practical_marks:
             self.add_error(
                 'practical_obtained',
                 f'Practical marks cannot exceed {subject.practical_marks}.'
             )
 
-        # Total marks validation
+    
         total = theory + practical
         if total > subject.full_marks:
             raise forms.ValidationError(

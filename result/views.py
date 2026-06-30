@@ -268,14 +268,27 @@ def student_dashboard(request):
     total_obtained = sum(m.marks_obtained for m in my_marks)
     total_full = sum(m.subject.full_marks for m in my_marks)
     overall_pct = round((total_obtained / total_full * 100) if total_full else 0, 2)
+
+    class_students_qs = Student.objects.filter(class_name=student.class_name).order_by('roll_number')
+
+    class_students = []
+    for s in class_students_qs:
+        s_marks = Marks.objects.filter(student=s)
+        if s_marks.exists():
+            status = 'Pass' if all(m.is_pass for m in s_marks) else 'Fail'
+        else:
+            status = 'Pending'
+        s.status = status
+        class_students.append(s)
+
     return render(request, 'student/dashboard.html', {
         'student': student,
         'my_marks': my_marks,
         'total_obtained': total_obtained,
         'total_full': total_full,
         'overall_pct': overall_pct,
+        'class_students': class_students,
     })
-
 
 @login_required(login_url='student_login')
 def student_own_result(request):
@@ -300,18 +313,15 @@ def student_result_view(request):
     student = get_object_or_404(Student, user=request.user)
     marks_list = Marks.objects.filter(student=student)
     
-    
-    
-    
     classmates = Student.objects.filter(class_name=student.class_name).order_by('roll_number')
     
     classmates_data = []
     for classmate in classmates:
         classmate_marks = Marks.objects.filter(student=classmate)
         if classmate_marks.exists():
-            # Kun pani subject fail vaye overall fail
+            
             overall_pass = all(m.is_pass for m in classmate_marks)
-            status = 'Pass'
+            status = 'Pass' if overall_pass else 'Fail'
         else:
             overall_pass = None
             status = 'Pending'
@@ -328,5 +338,6 @@ def student_result_view(request):
     
         'classmates_data': classmates_data,
     }
-    return render(request, 'result.html', context)
+    return render(request, 'student/result.html', context)
+
 
