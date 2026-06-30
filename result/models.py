@@ -192,4 +192,4 @@ class Result(models.Model):
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     Subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
-    assigned_class = models.ForeignKey('SchoolClass', on_delete=models.CASCADE)
+    assigned_class = models.ForeignKey('Class', on_delete=models.CASCADE)

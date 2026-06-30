@@ -5,6 +5,9 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+
+from result.decorators import teacher_required
+from result.utils import send_result_email
 from .models import Result, Student, Subject, Marks, Class, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -152,7 +155,7 @@ def add_subject(request):
 
 
 @login_required(login_url='login')
-def add_marks(request):
+def admin_add_marks(request):
     form = MarksForm(request.POST or None)
     if form.is_valid():
         form.save()
@@ -364,7 +367,60 @@ def publish_results(request, class_id):
     results.update(is_published=True, published_at=timezone.now())
     
     
-    send_result_emails(class_id)   # type: ignore
+    send_result_email(class_id)   
     
     messages.success(request, f"{count} student ko result publish vayo!")
     return redirect('admin_class_results', class_id=class_id)
+
+@teacher_required 
+def add_marks(request, student_id):
+    teacher = request.user.teacher
+    student = get_object_or_404(Student, id=student_id)
+    
+    
+    mark_instance = Marks.objects.filter(student=student, subject=teacher.subject).first()
+    
+    if request.method == 'POST':
+        form = MarksForm(request.POST, instance=mark_instance)
+        if form.is_valid():
+            mark = form.save(commit=False)
+            mark.student = student
+            mark.subject = teacher.subject  
+            mark.save()
+            messages.success(request, 'Marks saved!')
+            return redirect('teacher_dashboard')
+    else:
+        form = MarksForm(instance=mark_instance, initial={'student': student, 'subject': teacher.subject})
+    
+    return render(request, 'teacher/add_marks.html', {
+        'form': form,
+        'student': student,
+        'subject': teacher.subject,
+    })
+@teacher_required
+def teacher_dashboard(request):
+    teacher = request.user.teacher
+    students = Student.object.filter(student_class=teacher.assigned_class)
+    return render(request, 'teacher/dashboard.html', {'students': students, 'subject': teacher.subject})
+
+
+def teacher_login(request):
+    if request.method == 'POST':
+      
+        username = request.POST.get('username')
+        password = request.POST.get('Password')
+        user = authenticate(request, username=username, password=password)
+        if user and hasattr(user, 'teacher'):
+         auth_login(request, user)
+         return redirect('teacher_dashboard')
+        else:
+         messages.error(request, 'Invalid username or password !')
+    return render(request, 'teacher/login.html')
+
+def teacher_logout(request):
+    auth_logout(request)
+    return redirect('teacher_login')
+
+
+
+    
