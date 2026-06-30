@@ -1,4 +1,5 @@
 from dataclasses import field
+from urllib import request
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -183,6 +184,12 @@ class Result(models.Model):
     class_name = models.CharField(max_length=50)  
     section = models.CharField(max_length=10)     
     roll_no = models.IntegerField()
-
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return f"{self.student.username} - {self.subject}"
+    
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    Subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
+    assigned_class = models.ForeignKey('SchoolClass', on_delete=models.CASCADE)

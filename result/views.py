@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -311,33 +313,58 @@ def student_own_result(request):
 @login_required
 def student_result_view(request):
     student = get_object_or_404(Student, user=request.user)
-    marks_list = Marks.objects.filter(student=student)
+    
+    
+    marks_list = Marks.objects.filter(student=student, is_published=True)
+    
+    if not marks_list.exists():
+        return render(request, 'student/result.html', {
+            'student': student,
+            'not_published': True,
+        })
+    
+    overall_pass = all(m.is_pass for m in marks_list)
+    total_obtained = sum(m.marks_obtained for m in marks_list)
+    total_full = sum(m.subject.full_marks for m in marks_list)
+    
     
     classmates = Student.objects.filter(class_name=student.class_name).order_by('roll_number')
     
     classmates_data = []
     for classmate in classmates:
-        classmate_marks = Marks.objects.filter(student=classmate)
+        classmate_marks = Marks.objects.filter(student=classmate, is_published=True)
         if classmate_marks.exists():
-            
-            overall_pass = all(m.is_pass for m in classmate_marks)
-            status = 'Pass' if overall_pass else 'Fail'
+            classmate_overall_pass = all(m.is_pass for m in classmate_marks)
+            status = 'Pass' if classmate_overall_pass else 'Fail'
         else:
-            overall_pass = None
+            classmate_overall_pass = None
             status = 'Pending'
         
         classmates_data.append({
             'name': f"{classmate.first_name} {classmate.last_name}",
             'roll_number': classmate.roll_number,
-            'is_pass': overall_pass,
+            'is_pass': classmate_overall_pass,
             'status': status,
-            'is_me': classmate == student,  
+            'is_me': classmate == student,
         })
     
     context = {
-    
+        'student': student,
+        'marks_list': marks_list,
+        'overall_status': 'Pass' if overall_pass else 'Fail',
+        'total_obtained': total_obtained,
+        'total_full': total_full,
         'classmates_data': classmates_data,
     }
     return render(request, 'student/result.html', context)
 
-
+def publish_results(request, class_id):
+    results = Result.objects.filter(student_class_id=class_id, is_published=False)
+    count = results.count()
+    results.update(is_published=True, published_at=timezone.now())
+    
+    
+    send_result_emails(class_id)   # type: ignore
+    
+    messages.success(request, f"{count} student ko result publish vayo!")
+    return redirect('admin_class_results', class_id=class_id)
