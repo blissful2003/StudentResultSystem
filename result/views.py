@@ -1,8 +1,10 @@
 from ast import Return
 from datetime import timezone
+import email
 from pickle import MARK
 import secrets
 import string
+from urllib import request
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
@@ -442,10 +444,65 @@ def generate_password(length=8):
 def teacher_list(request):
     if not request.user.is_staff:
         return redirect('dashboard')
-    teacher= Teacher.object.selected_related('user','subject', 'assigned_class').all()
-    return render(request, 'result/teacher_list.html', {'teacher':teacher})
+    teachers = Teacher.objects.select_related('user', 'subject', 'assigned_class').all()
+    return render(request, 'result/teacher_list.html', {'teachers': teachers})
 
+@login_required(login_url='login')
+def add_teacher(request):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+    
+    subjects = Subject.objects.all()
+    classes = Class.objects.all()
+    
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email', '')
+        subject_id = request.POST.get('subject')
+        class_id = request.POST.get('assigned_class')
+        
+        username = f"TCH-{first_name.lower()}{secrets.randbelow(900)+100}"
+        password = generate_password()
+        
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+        )
+        
+        Teacher.objects.create(
+            user=user,
+            subject_id=subject_id,
+            assigned_class_id=class_id,
+        )
+        
+        subject = Subject.objects.get(id=subject_id)
+        cls = Class.objects.get(id=class_id)
+        
+        return render(request, 'result/teacher_credential.html', {
+            'teacher_name': f"{first_name} {last_name}",
+            'username': username,
+            'password': password,
+            'subject': subject.name,
+            'assigned_class': cls.name,
+            'login_url': request.build_absolute_uri('/teacher/login/'),
+        })
+    
+    return render(request, 'result/add_teacher.html', {
+        'subjects': subjects,
+        'classes': classes,
+    })
 
-
-
-
+@login_required(login_url='login')
+def delete_teacher(request, pk):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+    teacher = get_object_or_404(Teacher, pk=pk)
+    if request.method == 'POST':
+        teacher.user.delete()
+        messages.success(request, 'Teacher deleted!')
+        return redirect('teacher_list')
+    return render(request, 'result/confirm_delete_teacher.html', {'teacher': teacher})
