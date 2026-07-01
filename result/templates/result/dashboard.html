@@ -141,7 +141,6 @@
 
 <div class="row g-3 mb-4">
 
-
     <div class="col-6 col-md-3">
         <div class="stat-card h-100" style="background:#e8f0fe;">
             <div class="d-flex align-items-start justify-content-between">
@@ -153,7 +152,6 @@
             </div>
         </div>
     </div>
-
 
     <div class="col-6 col-md-3">
         <div class="stat-card h-100" style="background:#fff3e0;">
@@ -167,7 +165,6 @@
         </div>
     </div>
 
-
     <div class="col-6 col-md-3">
         <div class="stat-card h-100" style="background:#e8f5e9;">
             <div class="d-flex align-items-start justify-content-between">
@@ -179,7 +176,6 @@
             </div>
         </div>
     </div>
-
 
     <div class="col-6 col-md-3">
         <div class="stat-card h-100" style="background:#fce4ec;">
@@ -216,7 +212,6 @@
 
 <div class="row g-3">
 
-
     <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
             <div class="section-title">Quick Actions</div>
@@ -233,10 +228,13 @@
                 <a href="{% url 'student_list' %}" class="quick-btn" style="background:#f3e5f5; color:#6a1b9a;">
                     <span>Search all the Students</span>
                 </a>
+                <!-- ✅ NEW: Manage Teachers -->
+                <a href="{% url 'teacher_list' %}" class="quick-btn" style="background:#e8f5f5; color:#00695c;">
+                    <span>👨‍🏫 Manage Teachers</span>
+                </a>
             </div>
         </div>
     </div>
-
 
     <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
@@ -262,7 +260,6 @@
                 <span style="color:#555;">Fail results:</span>
                 <strong class="ms-auto text-danger">{{ fail_count }}</strong>
             </div>
-
 
             {% if total_students == 0 %}
             <div class="text-center mt-3 p-3" style="background:#f8f9fa; border-radius:10px;">

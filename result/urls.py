@@ -30,4 +30,7 @@ urlpatterns = [
     path('teacher/logout/', views.teacher_logout, name='teacher_logout'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('teacher/add_mark/<int:student_id>/', views.add_mark, name='teacher_add_mark'),
+    path('teacher/', views.teacher_list, name='teacher_list'),
+    path('teacher/add/', views.add_teacher, name='add_teacher'),
+    path('teacher/delete/<int:pk>/', views.delete_teacher, name='delete_teacher'),
 ]

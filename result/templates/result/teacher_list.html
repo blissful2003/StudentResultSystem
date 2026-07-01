@@ -46,14 +46,15 @@
                     </form>
                 </td>
             </tr>
-            {% endfor %}
             {% empty %}
-            <tr><td colspan="5" class="text-center text-muted">No teachers added yet</td></tr>
+            <tr>
+                <td colspan="5" class="text-center text-muted">No teachers added yet</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-2">← Back to Dashboard</a>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-2"> Back to Dashboard</a>
 </div>
 </body>
 </html>

@@ -399,7 +399,9 @@ def teacher_logout(request):
 @teacher_required
 def teacher_dashboard(request):
     teacher = request.user.teacher
-    students = Student.object.filter(student_class=teacher.assigned_class).order_by('roll_number')
+    students = Student.object.filter(
+        student_class=teacher.assigned_class
+        ).order_by('roll_number')
     student_data = []
     for student in student:
         mark = mark.object.filter(student=student, subject=teacher.subject).first()
@@ -436,7 +438,7 @@ def add_mark(request, student_id):
             return render(request, 'teacher/add_marks.html', { 'form': form, 'student': student, 'subject': teacher.subject, })
 
 
-def generate_password(length=8):
+def generate_password(length=6):
     chars = string.ascii_letters + string.digits
     return ''.join(secrets.choice(chars) for _ in range(length))
 
@@ -462,8 +464,10 @@ def add_teacher(request):
         subject_id = request.POST.get('subject')
         class_id = request.POST.get('assigned_class')
         
-        username = f"TCH-{first_name.lower()}{secrets.randbelow(900)+100}"
+        username = f"{first_name.lower()}{secrets.randbelow(900)+100}"
         password = generate_password()
+
+        
         
         user = User.objects.create_user(
             username=username,
