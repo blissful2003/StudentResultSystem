@@ -25,12 +25,27 @@ class Subject(models.Model):
         Class, on_delete=models.CASCADE, related_name='subjects'
     )
     name = models.CharField(max_length=100)
+    subject_code = models.CharField(max_length=20,unique=True, blank=True)
     full_marks = models.PositiveIntegerField(default=100)
     theory_marks = models.PositiveIntegerField(default=60)
     practical_marks = models.PositiveIntegerField(default=40)
     pass_marks = models.PositiveIntegerField(default=40)
     theory_pass_marks = models.PositiveIntegerField(default=24)
     practical_pass_marks = models.PositiveIntegerField(default=15)
+
+    def save(self, *args, **kwargs):
+        if not self.subject_code:
+            last = Subject.objects.order_by('-id').first()
+
+            if last:
+                number = last.id + 1
+            else:
+                number = 1
+
+            self.subject_code = f"SUB{number:03d}"
+
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return f"{self.name} ({self.class_name})"
@@ -193,3 +208,6 @@ class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     Subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
     assigned_class = models.ForeignKey('Class', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.subject}"

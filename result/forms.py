@@ -8,7 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeFo
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
-        fields = ['class_name', 'name', 'full_marks',
+        fields = ['class_name', 'name','full_marks',
                   'theory_marks', 'practical_marks', 'pass_marks']
         widgets = {
             'class_name': forms.Select(attrs={'class': 'form-select'}),

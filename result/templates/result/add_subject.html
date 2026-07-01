@@ -138,7 +138,13 @@
         {% csrf_token %}
 
         <div class="section-title"> Subject Details</div>
-
+        <div class="mb-3">
+            <label class="form-label">Subject Name *</label>
+            {{ form.name }}
+            {% for error in form.name.errors %}
+            <div class="error-text"> {{ error }}</div>
+            {% endfor %}
+        </div>
 
         <div class="mb-3">
             <label class="form-label">Class *</label>
@@ -148,16 +154,6 @@
                 + Add new class
             </a>
             {% for error in form.class_name.errors %}
-            <div class="error-text"> {{ error }}</div>
-            {% endfor %}
-        </div>
-
-
-        <div class="mb-3">
-            <label class="form-label">Subject Name *</label>
-            {{ form.name }}
-            <div class="hint-text"> </div>
-            {% for error in form.name.errors %}
             <div class="error-text"> {{ error }}</div>
             {% endfor %}
         </div>

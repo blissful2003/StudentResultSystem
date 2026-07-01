@@ -29,5 +29,5 @@ urlpatterns = [
     path('teacher/login/', views.teacher_login, name='teacher_login'),
     path('teacher/logout/', views.teacher_logout, name='teacher_logout'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
-    path('teacher/add_marks/<int:student_id>/', views.add_marks, name='teacher_add_mark'),
+    path('teacher/add_mark/<int:student_id>/', views.add_mark, name='teacher_add_mark'),
 ]
