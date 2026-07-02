@@ -72,10 +72,9 @@ class StudentForm(forms.ModelForm):
 class MarksForm(forms.ModelForm):
     class Meta:
         model = Marks
-        fields = ['student', 'subject', 'theory_obtained', 'practical_obtained']
+        fields = ['theory_obtained', 'practical_obtained']
+
         widgets = {
-            'student': forms.Select(attrs={'class': 'form-select'}),
-            'subject': forms.Select(attrs={'class': 'form-select'}),
             'theory_obtained': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': '0'
@@ -85,7 +84,7 @@ class MarksForm(forms.ModelForm):
                 'placeholder': '0'
             }),
         }
-
+        
     def clean(self):
         cleaned_data = super().clean()
 

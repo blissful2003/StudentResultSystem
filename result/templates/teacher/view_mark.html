@@ -1,0 +1,38 @@
+<h2>Student Marks</h2>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Student</th>
+        <td>{{ mark.student.first_name }} {{ mark.student.last_name }}</td>
+    </tr>
+
+    <tr>
+        <th>Roll No</th>
+        <td>{{ mark.student.roll_number }}</td>
+    </tr>
+
+    <tr>
+        <th>Subject</th>
+        <td>{{ mark.subject.name }}</td>
+    </tr>
+
+    <tr>
+        <th>Obtained Marks</th>
+        <td>{{ mark.obtained_marks }}</td>
+    </tr>
+
+    <tr>
+        <th>Status</th>
+        <td>
+            {% if mark.is_pass %}
+                Pass
+            {% else %}
+                Fail
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">
+    Back
+</a>

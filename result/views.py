@@ -399,44 +399,116 @@ def teacher_logout(request):
 @teacher_required
 def teacher_dashboard(request):
     teacher = request.user.teacher
-    students = Student.object.filter(
-        student_class=teacher.assigned_class
-        ).order_by('roll_number')
+
+    students = Student.objects.filter(
+        class_name=teacher.assigned_class
+    ).order_by('roll_number')
+
     student_data = []
-    for student in student:
-        mark = mark.object.filter(student=student, subject=teacher.subject).first()
+
+    for student in students:
+        mark = Marks.objects.filter(
+            student=student,
+            subject=teacher.subject
+        ).first()
+
         student_data.append({
-            'student':student,
-            'mark':mark,
-            'status':'pass' if mark and mark.is_pass else ('Fail' if mark else 'Not added'),
+            'student': student,
+            'mark': mark,
+            'status': 'Pass' if mark and mark.is_pass else ('Fail' if mark else 'Not Added'),
         })
 
-    return render(request, 'teacher/dashboard.html', {'students': students, 'subject': teacher.subject})
-
-@teacher_required 
+    return render(request, 'teacher/dashboard.html', {
+        'student_data': student_data,
+        'subject': teacher.subject,
+    })
+@teacher_required
 def add_mark(request, student_id):
     teacher = request.user.teacher
-    student = get_object_or_404(Student, id='student_id')
+    student = get_object_or_404(Student, id=student_id)
 
     if student.class_name != teacher.assigned_class:
-        messages.error(request, "You can only add mark from your assigned class")
+        messages.error(request, "You can only add marks for your assigned class.")
         return redirect('teacher_dashboard')
-    
-    mark_instance = Marks.object.filter(student=student, subject=teacher.subject).first() 
+
+    mark_instance = Marks.objects.filter(
+        student=student,
+        subject=teacher.subject
+    ).first()
 
     if request.method == 'POST':
-        form= MarksForm(request.POST, instance=mark_instance)
-        if form.is_valid():
-            mark=form.save(commit=False)
-            mark.student=student
-            mark.subject=teacher.subject
-            mark.save()
-            messages.success(request, "Marks Saved Successfully")
-            return redirect('teacher_dashboard')
-        else:
-            form = MarksForm(instance=mark_instance, initial={'student': student, 'subject': teacher.subject})
-            return render(request, 'teacher/add_marks.html', { 'form': form, 'student': student, 'subject': teacher.subject, })
+        form = MarksForm(request.POST, instance=mark_instance)
 
+        if form.is_valid():
+            mark = form.save(commit=False)
+            mark.student = student
+            mark.subject = teacher.subject
+            mark.save()
+
+            messages.success(request, "Marks saved successfully.")
+            return redirect('teacher_dashboard')
+    else:
+        form = MarksForm(instance=mark_instance)
+
+    return render(request, 'teacher/add_mark.html', {
+        'form': form,
+        'student': student,
+        'subject': teacher.subject,
+    })
+
+@teacher_required
+def view_mark(request, mark_id):
+    teacher = request.user.teacher
+    mark = get_object_or_404(
+        Marks,
+        id=mark_id,
+        subject=teacher.subject
+    )
+    return render(request, 'teacher/view_mark.html', {'mark': mark})
+
+
+@teacher_required
+def edit_mark(request, mark_id):
+    teacher = request.user.teacher
+    mark = get_object_or_404(
+        Marks,
+        id=mark_id,
+        subject=teacher.subject
+    )
+
+    if request.method == 'POST':
+        form = MarksForm(request.POST, instance=mark)
+
+        if form.is_valid():
+            updated = form.save(commit=False)
+            updated.student = mark.student
+            updated.subject = teacher.subject
+            updated.save()
+
+            messages.success(request, "Marks updated successfully.")
+            return redirect('teacher_dashboard')
+
+    else:
+        form = MarksForm(instance=mark)
+
+    return render(request, 'teacher/edit_mark.html', {
+        'form': form,
+        'student': mark.student,
+        'subject': teacher.subject,
+    })
+@teacher_required
+def delete_mark(request, mark_id):
+    teacher = request.user.teacher
+
+    mark = get_object_or_404(
+        Marks,
+        id=mark_id,
+        subject=teacher.subject
+    )
+    mark.delete()
+
+    messages.success(request, "Marks deleted successfully.")
+    return redirect('teacher_dashboard')
 
 def generate_password(length=6):
     chars = string.ascii_letters + string.digits
