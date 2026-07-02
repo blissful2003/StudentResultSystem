@@ -1,74 +1,211 @@
-```html
 {% extends 'teacher/base.html' %}
 
 {% block title %}Edit Marks{% endblock %}
 
 {% block content %}
 
-<div class="container mt-4">
+<style>
+body{
+    background:#f4f7fb;
+}
+
+.edit-card{
+    border:none;
+    border-radius:18px;
+    overflow:hidden;
+}
+
+.card-header{
+    background:linear-gradient(135deg,#ffc107,#ff9800);
+}
+
+.info-table th{
+    background:#f8f9fa;
+    width:35%;
+    color:#555;
+}
+
+.info-table td{
+    font-weight:500;
+}
+
+.form-control,
+.form-select{
+    border-radius:10px;
+    padding:10px 15px;
+    transition:.3s;
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color:#0d6efd;
+    box-shadow:0 0 10px rgba(13,110,253,.2);
+}
+
+.form-label{
+    color:#444;
+}
+
+.btn{
+    border-radius:10px;
+    padding:10px 22px;
+    font-weight:600;
+}
+
+.btn-success{
+    background:#198754;
+    border:none;
+}
+
+.btn-success:hover{
+    background:#157347;
+}
+
+.btn-outline-secondary:hover{
+    color:white;
+}
+
+.section-title{
+    font-weight:700;
+    color:#0d6efd;
+}
+
+hr{
+    opacity:.15;
+}
+</style>
+
+<div class="container py-5">
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm rounded-3">
                 {{ message }}
+                <button class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
     {% endif %}
 
-    <div class="card shadow">
-        <div class="card-header bg-warning text-dark">
-            <h3 class="mb-0">Edit Student Marks</h3>
-        </div>
+    <div class="row justify-content-center">
 
-        <div class="card-body">
+        <div class="col-lg-8">
 
-            <table class="table table-bordered mb-4">
-                <tr>
-                    <th width="30%">Student</th>
-                    <td>{{ student.name }}</td>
-                </tr>
-                <tr>
-                    <th>Roll Number</th>
-                    <td>{{ student.roll_number }}</td>
-                </tr>
-                <tr>
-                    <th>Subject</th>
-                    <td>{{ subject.subject_name }}</td>
-                </tr>
-            </table>
+            <div class="card shadow-lg edit-card">
 
-            <form method="POST">
-                {% csrf_token %}
+                <div class="card-header text-dark py-4">
 
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label">
-                            {{ field.label }}
-                        </label>
+                    <h3 class="mb-0 fw-bold">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Edit Student Marks
+                    </h3>
 
-                        {{ field }}
+                </div>
 
-                        {% if field.errors %}
-                            <div class="text-danger mt-1">
+                <div class="card-body p-5">
+
+                    <h4 class="section-title mb-4">
+                        <i class="bi bi-person-circle me-2"></i>
+                        Student Information
+                    </h4>
+
+                    <table class="table table-bordered align-middle info-table">
+
+                        <tbody>
+
+                            <tr>
+                                <th>Student Name</th>
+                                <td>{{ student.name }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Roll Number</th>
+                                <td>
+                                    <span class="badge bg-primary fs-6 px-3 py-2">
+                                        {{ student.roll_number }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Subject</th>
+                                <td>
+                                    <span class="badge bg-success fs-6 px-3 py-2">
+                                        {{ subject.subject_name }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <hr class="my-5">
+
+                    <h4 class="section-title mb-4">
+                        <i class="bi bi-journal-check me-2"></i>
+                        Update Marks
+                    </h4>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        {% for field in form %}
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                            <div class="form-text">
+                                {{ field.help_text }}
+                            </div>
+                            {% endif %}
+
+                            {% if field.errors %}
+                            <div class="text-danger small mt-2">
                                 {{ field.errors }}
                             </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                            {% endif %}
 
-                <button type="submit" class="btn btn-success">
-                    Update Marks
-                </button>
+                        </div>
 
-                <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">
-                    Cancel
-                </a>
-            </form>
+                        {% endfor %}
+
+                        <div class="d-flex justify-content-between mt-5">
+
+                            <a href="{% url 'teacher_dashboard' %}"
+                               class="btn btn-outline-secondary">
+
+                                <i class="bi bi-arrow-left-circle me-1"></i>
+                                Back
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-success">
+
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                Update Marks
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
 
         </div>
+
     </div>
 
 </div>
 
 {% endblock %}
-```

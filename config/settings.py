@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-+-+!crpu7i%=(s==%+_&p1$r9)cb#5d1xucw3==48xft^84=4s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 # Application definition
 
@@ -124,11 +129,3 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'kabitadahal859@gmail.com'
-EMAIL_HOST_PASSWORD = 'lenp fqqy jabt agnm'  
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

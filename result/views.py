@@ -491,11 +491,7 @@ def edit_mark(request, mark_id):
     else:
         form = MarksForm(instance=mark)
 
-    return render(request, 'teacher/edit_mark.html', {
-        'form': form,
-        'student': mark.student,
-        'subject': teacher.subject,
-    })
+    return render(request, 'teacher/edit_mark.html', {'form': form,'student': mark.student,'subject': teacher.subject,})
 @teacher_required
 def delete_mark(request, mark_id):
     teacher = request.user.teacher
@@ -518,28 +514,32 @@ def generate_password(length=6):
 def teacher_list(request):
     if not request.user.is_staff:
         return redirect('dashboard')
-    teachers = Teacher.objects.select_related('user', 'subject', 'assigned_class').all()
+    teachers = Teacher.objects.select_related('user', 'subject')
     return render(request, 'result/teacher_list.html', {'teachers': teachers})
 
 @login_required(login_url='login')
 def add_teacher(request):
     if not request.user.is_staff:
         return redirect('dashboard')
-    
+
     subjects = Subject.objects.all()
     classes = Class.objects.all()
-    
+
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email', '')
         subject_id = request.POST.get('subject')
         class_id = request.POST.get('assigned_class')
-        
+        assigned_class = request.POST.get('assigned_class')
+
         username = f"{first_name.lower()}{secrets.randbelow(900)+100}"
         password = generate_password()
 
-        
+       
+        subject = Subject.objects.get(id=subject_id)
+        assigned_class = Class.objects.get(id=class_id)
+
         
         user = User.objects.create_user(
             username=username,
@@ -548,30 +548,25 @@ def add_teacher(request):
             last_name=last_name,
             email=email,
         )
-        
         Teacher.objects.create(
             user=user,
-            subject_id=subject_id,
-            assigned_class_id=class_id,
+            subject=subject,
+            assigned_class=assigned_class   
         )
-        
-        subject = Subject.objects.get(id=subject_id)
-        cls = Class.objects.get(id=class_id)
-        
+
         return render(request, 'result/teacher_credential.html', {
             'teacher_name': f"{first_name} {last_name}",
             'username': username,
             'password': password,
             'subject': subject.name,
-            'assigned_class': cls.name,
+            'assigned_class': assigned_class.name,   
             'login_url': request.build_absolute_uri('/teacher/login/'),
         })
-    
+
     return render(request, 'result/add_teacher.html', {
         'subjects': subjects,
         'classes': classes,
     })
-
 @login_required(login_url='login')
 def delete_teacher(request, pk):
     if not request.user.is_staff:
