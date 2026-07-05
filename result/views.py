@@ -43,6 +43,10 @@ def admin_logout(request):
 
 @login_required(login_url='login')
 def dashboard(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access Denied!")
+        return redirect('teacher_dashboard')
+
     return render(request, 'result/dashboard.html', {
         'total_students': Student.objects.count(),
         'total_subjects': Subject.objects.count(),
