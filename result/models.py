@@ -208,15 +208,9 @@ class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user.username} - {self.subject}"
+     return self.user.username
 class TeacherAssignment(models.Model):
 
       teacher = models.ForeignKey('Teacher',on_delete=models.CASCADE)
-      assigned_class = models.ForeignKey(
-        'Class',
-        on_delete=models.CASCADE
-    )
-subject = models.ForeignKey(
-        'Subject',
-        on_delete=models.CASCADE
-    )
+      assigned_class = models.ForeignKey('Class',on_delete=models.CASCADE)
+      subject = models.ForeignKey('Subject',on_delete=models.CASCADE)

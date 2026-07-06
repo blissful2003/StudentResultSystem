@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 
 from result.decorators import teacher_required
 from result.utils import send_result_email
-from .models import Result, Student, Subject, Marks, Class, Teacher, generate_student_id
+from .models import Result, Student, Subject, Marks, Class, Teacher, TeacherAssignment, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -403,9 +403,10 @@ def teacher_logout(request):
 @teacher_required
 def teacher_dashboard(request):
     teacher = request.user.teacher
+    assignment = TeacherAssignment.objects.get(teacher=teacher)
 
     students = Student.objects.filter(
-        class_name=teacher.assigned_class
+        class_name=assignment.assigned_class
     ).order_by('roll_number')
 
     student_data = []
@@ -413,7 +414,7 @@ def teacher_dashboard(request):
     for student in students:
         mark = Marks.objects.filter(
             student=student,
-            subject=teacher.subject
+            subject=assignment.subject
         ).first()
 
         student_data.append({
@@ -424,7 +425,7 @@ def teacher_dashboard(request):
 
     return render(request, 'teacher/dashboard.html', {
         'student_data': student_data,
-        'subject': teacher.subject,
+        'subject': assignment.subject,
     })
 @teacher_required
 def add_mark(request, student_id):
@@ -552,10 +553,14 @@ def add_teacher(request):
             last_name=last_name,
             email=email,
         )
-        Teacher.objects.create(
-            user=user,
+        teacher = Teacher.objects.create(
+            user=user
+        )
+
+        TeacherAssignment.objects.create(
+            teacher=teacher,
             subject=subject,
-            assigned_class=assigned_class   
+            assigned_class=assigned_class
         )
 
         return render(request, 'result/teacher_credential.html', {
