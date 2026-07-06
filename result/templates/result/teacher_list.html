@@ -33,24 +33,45 @@
             </tr>
         </thead>
         <tbody>
-            {% for teacher in teachers %}
-            <tr>
-                <td>{{ teacher.user.username }}</td>
-                <td>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</td>
-                <td>{{ teacher.subject.name }}</td>
-                <td>{{ teacher.assigned_class.name }}</td>
-                <td>
-                    <form method="post" action="{% url 'delete_teacher' teacher.pk %}" onsubmit="return confirm('Delete this teacher?')">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center text-muted">No teachers added yet</td>
-            </tr>
-            {% endfor %}
+             {% for teacher in teachers %}
+<tr>
+    <td>{{ teacher.user.username }}</td>
+    <td>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</td>
+
+    <td>
+        {% for a in teacher.assignments.all %}
+            {{ a.subject.name }}<br>
+        {% empty %}
+            No subject
+        {% endfor %}
+    </td>
+
+    <td>
+        {% for a in teacher.assignments.all %}
+            {{ a.assigned_class.name }}<br>
+        {% empty %}
+            No class
+        {% endfor %}
+    </td>
+
+    <td>
+        <form method="post"
+              action="{% url 'delete_teacher' teacher.pk %}"
+              onsubmit="return confirm('Delete this teacher?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">
+                Delete
+            </button>
+        </form>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5" class="text-center text-muted">
+        No teachers added yet
+    </td>
+</tr>
+{% endfor %}
         </tbody>
     </table>
 

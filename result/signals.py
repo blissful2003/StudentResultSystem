@@ -2,7 +2,7 @@
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Student
 
 @receiver(post_save, sender=Student)
@@ -12,7 +12,7 @@ def create_user_for_student(sender, instance, created, **kwargs):
         username = instance.student_id
         password = instance.date_of_birth.strftime('%Y%m%d')
 
-        user = User.objects.create_user(
+        user = get_user_model().objects.create_user(
             username=username,
             password=password,
             first_name=instance.first_name,

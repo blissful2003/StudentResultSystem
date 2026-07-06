@@ -43,10 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'result',
-
-
     # we add this to ajango knows about app listed in installed app
 ]
+AUTH_USER_MODEL = 'result.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

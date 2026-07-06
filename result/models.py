@@ -1,10 +1,19 @@
 from dataclasses import field
 from urllib import request
-
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 
+
+class CustomUser(AbstractUser):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
+    )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    phone = models.CharField(max_length=15, null=True, blank=True)
 
 class Class(models.Model):
     name = models.CharField(max_length=20)
@@ -107,7 +116,7 @@ class Student(models.Model):
         blank=True
     )
     user = models.OneToOneField(
-        User,
+        CustomUser,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -191,7 +200,7 @@ class Marks(models.Model):
         unique_together = ['student', 'subject']
         
 class Result(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     subject = models.CharField(max_length=100)
     marks_obtained = models.FloatField()
     full_marks = models.FloatField()
@@ -205,12 +214,13 @@ class Result(models.Model):
         return f"{self.student.username} - {self.subject}"
     
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
      return self.user.username
 class TeacherAssignment(models.Model):
 
-      teacher = models.ForeignKey('Teacher',on_delete=models.CASCADE)
+      teacher = models.ForeignKey('Teacher',on_delete=models.CASCADE,related_name='assignments')
       assigned_class = models.ForeignKey('Class',on_delete=models.CASCADE)
       subject = models.ForeignKey('Subject',on_delete=models.CASCADE)
+    

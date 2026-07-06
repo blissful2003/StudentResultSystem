@@ -1,10 +1,10 @@
 from django import forms
 from .models import Class, Subject, Student, Marks
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeForm
 
-
+User = get_user_model()
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
@@ -73,56 +73,36 @@ class MarksForm(forms.ModelForm):
     class Meta:
         model = Marks
         fields = ['theory_obtained', 'practical_obtained']
-
         widgets = {
-            'theory_obtained': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': '0'
-            }),
-            'practical_obtained': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': '0'
-            }),
+            'theory_obtained': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0'}),
+            'practical_obtained': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0'}),
         }
-        
+
+    def __init__(self, *args, **kwargs):
+        self.subject = kwargs.pop('subject', None) 
+        super().__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
+        theory = cleaned_data.get('theory_obtained') 
+        practical = cleaned_data.get('practical_obtained') 
 
-        subject = cleaned_data.get('subject')
-        theory = cleaned_data.get('theory_obtained')
-        practical = cleaned_data.get('practical_obtained')
-
+        subject = self.subject or (self.instance.subject if self.instance and self.instance.pk else None)
         if not subject:
             return cleaned_data
 
-        if theory is None:
-            theory = 0
-
-        if practical is None:
-            practical = 0
-
-        
         if theory > subject.theory_marks:
-            self.add_error(
-                'theory_obtained',
-                f'Theory marks cannot exceed {subject.theory_marks}.'
-            )
+            self.add_error('theory_obtained', f'Theory marks cannot exceed {subject.theory_marks}.')
 
-        
         if practical > subject.practical_marks:
-            self.add_error(
-                'practical_obtained',
-                f'Practical marks cannot exceed {subject.practical_marks}.'
-            )
+            self.add_error('practical_obtained', f'Practical marks cannot exceed {subject.practical_marks}.')
 
-    
         total = theory + practical
         if total > subject.full_marks:
-            raise forms.ValidationError(
-                f'Total marks cannot exceed {subject.full_marks}.'
-            )
+            raise forms.ValidationError(f'Total marks cannot exceed {subject.full_marks}.')
 
         return cleaned_data
+    
 
 class SignupForm(UserCreationForm):
     email = forms.EmailField(required=True)
