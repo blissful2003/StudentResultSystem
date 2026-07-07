@@ -110,7 +110,7 @@
     }
 </style>
 
-<!-- Header -->
+
 <div class="page-header">
     <h4>{% if edit %}Edit Student{% else %}Add new Student{% endif %}</h4>
     <p>{% if edit %}Update Student information{% else %}Fill Students details{% endif %}</p>
@@ -218,8 +218,7 @@
             </div>
         </div>
 
-        
-    
+            <a href="{% url 'upload_students' %}" class="btn btn-success">Upload Students CSV</a>
 <div class="section-title green">Login Credentials</div>
 <div class="credential-box">
     <div class="row g-3">
@@ -243,7 +242,6 @@
             </button>
             <a href="{% url 'student_list' %}" class="btn-cancel">Cancel</a>
         </div>
-
     </form>
 </div>
 

@@ -77,47 +77,39 @@ def generate_student_id():
     return f'STU-{year}-{str(number).zfill(3)}'
 
 
-class Student(models.Model):
-    
+class Student(models.Model): 
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
         ('Other', 'Other'),
     ]
-
-    
     student_id = models.CharField(
         max_length=20,
         unique=True,
         default=generate_student_id,
         editable=False
     )
-
     roll_number = models.PositiveIntegerField()
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, validators=[MinLengthValidator(10)])
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True)
     address = models.TextField()
     parent_name = models.CharField(max_length=100, blank=True)
-    parent_phone = models.CharField(
-    max_length=15,
-    validators=[MinLengthValidator(10)]
-)
+    parent_phone = models.CharField(max_length=15, validators=[MinLengthValidator(10)])
     parent_email = models.EmailField(blank=True)
 
     class_name = models.ForeignKey(
-        Class,
+        'Class',
         on_delete=models.CASCADE,
-        related_name='students',
-        null=True,
-        blank=True
+        related_name='students'
     )
+    
     user = models.OneToOneField(
         CustomUser,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='student_profile'
@@ -218,9 +210,9 @@ class Teacher(models.Model):
 
     def __str__(self):
      return self.user.username
-class TeacherAssignment(models.Model):
-
-      teacher = models.ForeignKey('Teacher',on_delete=models.CASCADE,related_name='assignments')
-      assigned_class = models.ForeignKey('Class',on_delete=models.CASCADE)
-      subject = models.ForeignKey('Subject',on_delete=models.CASCADE)
     
+    
+class TeacherAssignment(models.Model):
+    teacher = models.OneToOneField(Teacher, on_delete=models.CASCADE)
+    assigned_class = models.ManyToManyField('Class')
+    subject = models.ManyToManyField('Subject')

@@ -31,23 +31,38 @@
                 <input type="email" name="email" class="form-control">
             </div>
             <div class="col-md-6">
-                <label class="form-label">Subject *</label>
-                <select name="subject" class="form-control" required>
-                    <option value=""> </option>
-                    {% for subject in subjects %}
-                    <option value="{{ subject.id }}">{{ subject.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <label class="form-label"><strong>Subjects *</strong></label>
+
+    <div class="border rounded p-2" style="max-height:200px; overflow-y:auto;">
+        {% for subject in subjects %}
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="subjects"
+                   value="{{ subject.id }}"
+                   id="subject{{ subject.id }}">
+            <label class="form-check-label" for="subject{{ subject.id }}">
+                {{ subject.name }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
             <div class="col-md-6">
-                <label class="form-label">Assigned Class *</label>
-                <select name="assigned_class" class="form-control" required>
-                    <option value=""> </option>
-                    {% for class in classes %}
-                    <option value="{{ class.id }}">{{ class.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <label class="form-label"><strong>Assigned Classes *</strong></label>
+
+    <div class="border rounded p-2" style="max-height:200px; overflow-y:auto;">
+        {% for class in classes %}
+        <div class="form-check">
+            <input class="form-check-input"type="checkbox" name="assigned_classes" value="{{ class.id }}" id="class{{ class.id }}">
+            <label class="form-check-label" for="class{{ class.id }}">
+                {{ class.name }}
+            </label>
+        </div>
+        
+        {% endfor %}
+    </div>
+</div>
         </div>
         <div class="d-flex gap-3 mt-4">
             <button type="submit" class="btn-save">Create Teacher & Generate Credential</button>

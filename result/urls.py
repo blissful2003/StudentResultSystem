@@ -37,4 +37,6 @@ urlpatterns = [
     path('teacher/delete_mark/<int:mark_id>/', views.delete_mark, name='teacher_delete_mark'),
     path('teacher/view_mark/<int:mark_id>/', views.view_mark, name='teacher_view_mark'),
     path('teacher/mark/add/<int:class_id>/<int:subject_id>/<int:student_id>/', views.add_mark, name='add_mark'),
+    path('download-student-credentials/<int:class_id>/', views.download_student_credentials, name='download_student_credentials'),
+    path('upload-students/', views.upload_students, name='upload_students'),
 ]

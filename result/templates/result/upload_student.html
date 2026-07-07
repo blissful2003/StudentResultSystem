@@ -1,0 +1,39 @@
+{% extends 'result/base.html' %}
+{% block content %}
+<div class="form-card">
+<h4>Upload Students CSV</h4>
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<label>Select Class</label>
+
+<select name="class_id" class="form-control" required>
+
+<option value="">
+Select Class
+</option>
+
+
+{% for class in classes %}
+
+<option value="{{class.id}}">
+{{class.name}}
+</option>
+
+{% endfor %}
+</select>
+
+<br>
+<label>CSV File</label>
+
+<input type="file"
+name="csv_file"
+class="form-control"
+accept=".csv"
+required>
+
+<br>
+<button class="btn-save" name="upload_csv">Upload Students</button>
+</form>
+
+</div>
+{% endblock %}

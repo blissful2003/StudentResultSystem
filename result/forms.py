@@ -1,5 +1,5 @@
 from django import forms
-from .models import Class, Subject, Student, Marks
+from .models import Class, Subject, Student, Marks, TeacherAssignment
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeForm
@@ -68,6 +68,14 @@ class StudentForm(forms.ModelForm):
                 'class': 'form-control', 'placeholder': 'Parent Email (optional)'
             }),
         }
+    
+
+class CSVUploadForm(forms.Form):
+       class_name = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        label="Select Class"
+    )
+csv_file = forms.FileField()
 
 class MarksForm(forms.ModelForm):
     class Meta:
@@ -140,3 +148,8 @@ class PasswordChangeForm(BasePasswordChangeForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+class TeacherAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = TeacherAssignment
+        fields = ['teacher', 'assigned_class', 'subject']            

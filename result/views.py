@@ -1,11 +1,13 @@
 from ast import Return
-from datetime import timezone
+import csv
+from datetime import datetime
 import email
+from itertools import count
 from pickle import MARK
 import secrets
 import string
 from urllib import request
-
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -96,6 +98,11 @@ def student_list(request):
 
 @login_required(login_url='login')
 def add_student(request):
+    if request.method == "POST" and "upload_csv" in request.POST:
+     class_id = request.POST.get("class_id")
+     class_obj = Class.objects.get(id=class_id)
+     csv_file = request.FILES["csv_file"]
+
     if request.method == 'POST':
         form = StudentForm(request.POST)
         if form.is_valid():
@@ -160,6 +167,86 @@ def delete_student(request, pk):
         return redirect('student_list')
     return render(request, 'result/confirm_delete.html', {'student': student})
 
+@login_required(login_url='login')
+def upload_students(request):
+    classes = Class.objects.all()
+    if request.method == "POST":
+        class_id = request.POST.get("class_id")
+        csv_file = request.FILES["csv_file"]
+        print(csv_file)
+        selected_class = Class.objects.get(id=class_id)
+
+        decoded_file = csv_file.read().decode("utf-8-sig").splitlines()
+        reader = csv.DictReader(decoded_file)
+        count=0
+
+        for row in reader:
+            print(row['roll_number'], row['first_name'])
+            student_id = generate_student_id()
+            print(User)
+            username = student_id
+            password = row['date_of_birth'].replace("-", "")
+            # if User.objects.filter(username=username).exists():
+            #    print("Already exists:", username)
+            # continue
+            print("USERNAME:", username)
+            print("EXISTS:", User.objects.filter(username=username).exists())
+            user = User.objects.create(
+                username=username,
+                password=password,
+                first_name=row['first_name'],
+                last_name=row['last_name'],
+                email=row['email'],
+                role='student',
+            )
+            Student.objects.create(
+                user=user,
+                student_id=student_id,
+                roll_number=row['roll_number'],
+                first_name=row['first_name'],
+                last_name=row['last_name'],
+                email=row['email'],
+                phone=row['phone'],
+                gender=row['gender'],
+                date_of_birth=row['date_of_birth'],
+                address=row['address'],
+                class_name=selected_class,
+                parent_name=row['parent_name'],
+                parent_phone=row['parent_phone'],
+                parent_email=row['parent_email'],
+            )
+            count += 1
+            print("Student saved:", Student.first_name, Student.student_id)
+            print("Total uploaded:", count)
+    
+        messages.success(request, "Students uploaded successfully!")
+        return redirect('student_list')
+    return render(request, "result/upload_student.html", {
+        "classes": classes
+    })
+
+
+def download_student_credentials(request, class_id):
+    students = Student.objects.filter(class_name_id=class_id).order_by('student_id')
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="student_credentials.csv"'
+    writer = csv.writer(response)
+    writer.writerow([
+        'Student ID',
+        'Username',
+        'Password'
+        'class'
+    ])
+
+    for student in students:
+        writer.writerow([
+            student.student_id,
+            student.student_id,
+            student.date_of_birth,
+            student.class_name.class_name
+        ])
+
+    return response
 
 @login_required(login_url='login')
 def add_subject(request):
@@ -415,7 +502,7 @@ def teacher_dashboard(request):
 
     dashboard_data = []
     for assignment in assignments:
-        students = Student.objects.filter(class_name=assignment.assigned_class).order_by('roll_number')
+        students = Student.objects.filter(class_name=assignment.assigned_class.all()).order_by('class_name', 'roll_number')
         student_data = []
         for student in students:
             mark = Marks.objects.filter(student=student, subject=assignment.subject).first()
@@ -470,7 +557,6 @@ def view_mark(request, mark_id):
     return render(request, 'teacher/view_mark.html', {'mark': mark})
 
 
-@teacher_required
 @teacher_required
 def edit_mark(request, mark_id):
     teacher = request.user.teacher
@@ -528,18 +614,14 @@ def add_teacher(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email', '')
-        subject_id = request.POST.get('subject')
-        class_id = request.POST.get('assigned_class')
-        assigned_class = request.POST.get('assigned_class')
+
+        
+        subject_ids = request.POST.filter('subjects')
+        class_ids = request.POST.filter('assigned_classes')
 
         username = f"{first_name.lower()}{secrets.randbelow(900)+100}"
         password = generate_password()
 
-       
-        subject = Subject.objects.get(id=subject_id)
-        assigned_class = Class.objects.get(id=class_id)
-
-        
         user = User.objects.create_user(
             username=username,
             password=password,
@@ -548,22 +630,30 @@ def add_teacher(request):
             email=email,
             role='teacher',
         )
-        teacher = Teacher.objects.create(
-            user=user
-        )
 
-        TeacherAssignment.objects.create(
-            teacher=teacher,
-            subject=subject,
-            assigned_class=assigned_class
-        )
+        teacher = Teacher.objects.create(user=user)
+
+
+        selected_subjects = Subject.objects.filter(id__in=subject_ids)
+        selected_classes = Class.objects.filter(id__in=class_ids)
+
+        for subject in selected_subjects:
+            for assigned_class in selected_classes:
+                TeacherAssignment.objects.create(
+                    teacher=teacher,
+                    subject=subject,
+                    assigned_class=assigned_class
+                )
 
         return render(request, 'result/teacher_credential.html', {
             'teacher_name': f"{first_name} {last_name}",
             'username': username,
             'password': password,
-            'subject': subject.name,
-            'assigned_class': assigned_class.name,   
+
+
+            'subjects': ", ".join(s.name for s in selected_subjects),
+            'classes': ", ".join(c.name for c in selected_classes),
+
             'login_url': request.build_absolute_uri('/teacher/login/'),
         })
 
