@@ -737,3 +737,15 @@ def edit_teacher(request, pk):
     }
 
     return render(request, "result/edit_teacher.html", context)
+
+
+@login_required
+def publish_result(request, id):
+    mark = get_object_or_404(Marks, id=id)
+    mark.is_published = True
+    mark.save()
+    messages.success(
+        request,
+        "Result published successfully!"
+    )
+    return redirect('admin_marks')

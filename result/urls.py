@@ -37,5 +37,5 @@ urlpatterns = [
     path('teacher/add_mark/<int:student_id>/<int:subject_id>/<int:class_id>/', views.add_mark, name='teacher_add_mark'),
     path('upload-students/', views.upload_students, name='upload_students'),
     path('class/add/', views.add_class, name='add_class'),
-    
+    path('admin/publish-result/<int:id>/', views.publish_result, name='publish_result'),    
 ]

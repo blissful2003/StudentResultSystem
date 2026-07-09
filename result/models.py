@@ -185,7 +185,9 @@ class Marks(models.Model):
             self.grade = 'NG'
 
         super().save(*args, **kwargs)
-
+        is_published = models.BooleanField(default=False)
+        created_at = models.DateTimeField(auto_now_add=True)
+        
     def __str__(self):
         return f"{self.student} - {self.subject.name}"
 
