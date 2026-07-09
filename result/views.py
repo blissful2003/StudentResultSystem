@@ -1,6 +1,6 @@
 from ast import Return
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 import email
 from itertools import count
 from pickle import MARK
@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from result.decorators import teacher_required
 from result.utils import send_result_email
+from .models import Teacher, TeacherAssignment, Subject, Class
 from .models import Result, Student, Subject, Marks, Class, Teacher, TeacherAssignment, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -181,7 +182,14 @@ def upload_students(request):
         count=0
 
         for row in reader:
-            print(row['roll_number'], row['first_name'])
+            if Student.objects.filter(class_name=selected_class, roll_number=row['roll_number']).exists():
+                print("Roll already exits")
+                continue
+
+            if Student.objects.filter(phone=row['phone']).exists():
+                print("Phone number already exit")
+                continue
+            #print(row['roll_number'], row['first_name'])
             student_id = generate_student_id()
             print(User)
             username = student_id
@@ -189,8 +197,8 @@ def upload_students(request):
             # if User.objects.filter(username=username).exists():
             #    print("Already exists:", username)
             # continue
-            print("USERNAME:", username)
-            print("EXISTS:", User.objects.filter(username=username).exists())
+            # print("USERNAME:", username)
+            # print("EXISTS:", User.objects.filter(username=username).exists())
             user = User.objects.create(
                 username=username,
                 password=password,
@@ -326,14 +334,19 @@ def delete_subject(request, pk):
 
 @login_required(login_url='login')
 def add_class(request):
+    next_page = request.GET.get('next') or request.POST.get('next') or 'add_subject'
+
     form = ClassForm(request.POST or None)
-    next_page = request.GET.get('next', 'add_subject')
+
     if form.is_valid():
         form.save()
         messages.success(request, 'Class added successfully!')
         return redirect(next_page)
-    return render(request, 'result/add_class.html', {'form': form})
 
+    return render(request, 'result/add_class.html', {
+        'form': form,
+        'next': next_page
+    })
 
 @login_required(login_url='login')
 def profile(request):
@@ -494,18 +507,23 @@ def teacher_logout(request):
     auth_logout(request)
     return redirect('teacher_login')
 
-@teacher_required
+
 @teacher_required
 def teacher_dashboard(request):
     teacher = request.user.teacher
-    assignments = TeacherAssignment.objects.filter(teacher=teacher).select_related('assigned_class', 'subject')
+    assignments = TeacherAssignment.objects.filter(teacher=teacher).select_related('class_assigned', 'subject_name')
 
     dashboard_data = []
     for assignment in assignments:
-        students = Student.objects.filter(class_name=assignment.assigned_class.all()).order_by('class_name', 'roll_number')
+        students = Student.objects.filter(
+            class_name=assignment.class_assigned
+        ).order_by('roll_number')
+
         student_data = []
         for student in students:
-            mark = Marks.objects.filter(student=student, subject=assignment.subject).first()
+            mark = Marks.objects.filter(
+                student=student, subject=assignment.subject_name
+            ).first()
             student_data.append({
                 'student': student,
                 'mark': mark,
@@ -518,16 +536,16 @@ def teacher_dashboard(request):
 
     return render(request, 'teacher/dashboard.html', {'dashboard_data': dashboard_data})
 
-
+    return render(request, "teacher/profile.html", context)
 @teacher_required
 def add_mark(request, student_id, subject_id, class_id):
     teacher = request.user.teacher
 
     assignment = get_object_or_404(
-        TeacherAssignment, teacher=teacher, assigned_class_id=class_id, subject_id=subject_id
+        TeacherAssignment, teacher=teacher, class_assigned_id=class_id, subject_name_id=subject_id
     )
     student = get_object_or_404(Student, id=student_id, class_name_id=class_id)
-    subject = assignment.subject
+    subject = assignment.subject_name
 
     mark_instance = Marks.objects.filter(student=student, subject=subject).first()
 
@@ -549,11 +567,11 @@ def add_mark(request, student_id, subject_id, class_id):
 @teacher_required
 def view_mark(request, mark_id):
     teacher = request.user.teacher
-    mark = get_object_or_404(
-        Marks,
-        id=mark_id,
-        subject=teacher.subject
-    )
+    mark = get_object_or_404(Marks, id=mark_id)
+    is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject_name=mark.subject).exists()
+    if not is_authorized:
+        messages.error(request, "Unauthorized.")
+        return redirect('teacher_dashboard')
     return render(request, 'teacher/view_mark.html', {'mark': mark})
 
 
@@ -562,7 +580,7 @@ def edit_mark(request, mark_id):
     teacher = request.user.teacher
     mark = get_object_or_404(Marks, id=mark_id)
 
-    is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject=mark.subject).exists()
+    is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject_name=mark.subject).exists()
     if not is_authorized:
         messages.error(request, "Unauthorized.")
         return redirect('teacher_dashboard')
@@ -580,12 +598,13 @@ def edit_mark(request, mark_id):
 @teacher_required
 def delete_mark(request, mark_id):
     teacher = request.user.teacher
+    mark = get_object_or_404(Marks, id=mark_id)
 
-    mark = get_object_or_404(
-        Marks,
-        id=mark_id,
-        subject=teacher.subject
-    )
+    is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject_name=mark.subject).exists()
+    if not is_authorized:
+        messages.error(request, "Unauthorized.")
+        return redirect('teacher_dashboard')
+
     mark.delete()
 
     messages.success(request, "Marks deleted successfully.")
@@ -599,7 +618,7 @@ def generate_password(length=6):
 def teacher_list(request):
     if not request.user.is_staff:
         return redirect('dashboard')
-    teachers = Teacher.objects.select_related('user').prefetch_related('assignments__subject','assignments__assigned_class')
+    teachers = Teacher.objects.select_related('user').prefetch_related('assignments__subject_name','assignments__class_assigned')
     return render(request, 'result/teacher_list.html', {'teachers': teachers})
 
 @login_required(login_url='login')
@@ -611,13 +630,14 @@ def add_teacher(request):
     classes = Class.objects.all()
 
     if request.method == 'POST':
+
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email', '')
 
-        
-        subject_ids = request.POST.filter('subjects')
-        class_ids = request.POST.filter('assigned_classes')
+        class_ids = request.POST.getlist('class_ids')
+        subject_ids = request.POST.getlist('subject_ids')
+
 
         username = f"{first_name.lower()}{secrets.randbelow(900)+100}"
         password = generate_password()
@@ -632,35 +652,31 @@ def add_teacher(request):
         )
 
         teacher = Teacher.objects.create(user=user)
+        assignments = []
+        for class_id, subject_id in zip(class_ids, subject_ids):
 
+            if class_id and subject_id:
 
-        selected_subjects = Subject.objects.filter(id__in=subject_ids)
-        selected_classes = Class.objects.filter(id__in=class_ids)
+                cls = Class.objects.get(id=class_id)
+                subj = Subject.objects.get(id=subject_id)
 
-        for subject in selected_subjects:
-            for assigned_class in selected_classes:
-                TeacherAssignment.objects.create(
+                TeacherAssignment.objects.get_or_create(
                     teacher=teacher,
-                    subject=subject,
-                    assigned_class=assigned_class
+                    class_assigned=cls,
+                    subject_name=subj
                 )
-
-        return render(request, 'result/teacher_credential.html', {
-            'teacher_name': f"{first_name} {last_name}",
-            'username': username,
-            'password': password,
+                assignments.append(f"{cls.name} → {subj.name}")
 
 
-            'subjects': ", ".join(s.name for s in selected_subjects),
-            'classes': ", ".join(c.name for c in selected_classes),
+        return render(request, 'result/teacher_credential.html',{'teacher_name': f"{first_name} {last_name}",
+                'username': username,
+                'password': password,
+                'assignments': assignments,
+                'login_url': request.build_absolute_uri('/teacher/login/'),
+            })
 
-            'login_url': request.build_absolute_uri('/teacher/login/'),
-        })
+    return render(request, 'result/add_teacher.html', {'subjects': subjects,'classes': classes,})
 
-    return render(request, 'result/add_teacher.html', {
-        'subjects': subjects,
-        'classes': classes,
-    })
 @login_required(login_url='login')
 def delete_teacher(request, pk):
     if not request.user.is_staff:
@@ -671,3 +687,54 @@ def delete_teacher(request, pk):
         messages.success(request, 'Teacher deleted!')
         return redirect('teacher_list')
     return render(request, 'result/confirm_delete_teacher.html', {'teacher': teacher})
+
+@login_required(login_url='login')
+def edit_teacher(request, pk):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+
+    teacher = get_object_or_404(Teacher, pk=pk)
+    user = teacher.user
+
+    assignments = TeacherAssignment.objects.filter(teacher=teacher)
+
+    subjects = Subject.objects.all()
+    classes = Class.objects.all()
+
+    if request.method == "POST":
+
+        
+        user.first_name = request.POST.get("first_name")
+        user.last_name = request.POST.get("last_name")
+        user.email = request.POST.get("email")
+        user.save()
+
+        subject_ids = request.POST.getlist("subjects")
+        class_ids = request.POST.getlist("assigned_classes")
+
+        
+        TeacherAssignment.objects.filter(teacher=teacher).delete()
+
+    
+        selected_subjects = Subject.objects.filter(id__in=subject_ids)
+        selected_classes = Class.objects.filter(id__in=class_ids)
+
+        for cls in selected_classes:
+            for subj in selected_subjects:
+                TeacherAssignment.objects.create(
+                    teacher=teacher,
+                    class_assigned=cls,
+                    subject_name=subj,
+                )
+
+        return redirect("teacher_list")
+
+    context = {
+        "teacher": teacher,
+        "user": user,
+        "subjects": subjects,
+        "classes": classes,
+        "assignments": assignments,
+    }
+
+    return render(request, "result/edit_teacher.html", context)

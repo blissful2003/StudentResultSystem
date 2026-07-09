@@ -1,39 +1,86 @@
 {% extends 'result/base.html' %}
+
 {% block content %}
-<div class="form-card">
-<h4>Upload Students CSV</h4>
-<form method="POST" enctype="multipart/form-data">
-{% csrf_token %}
-<label>Select Class</label>
 
-<select name="class_id" class="form-control" required>
+<div class="container mt-4">
 
-<option value="">
-Select Class
-</option>
+    <div class="form-card">
+
+        <h4 class="mb-4">Upload Students CSV</h4>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Select Class
+                </label>
+
+                <div class="d-flex gap-2">
+
+                    <select name="class_id" 
+                            class="form-select" 
+                            required>
+
+                        <option value="">
+                            Select Class
+                        </option>
+
+                        {% for c in classes %}
+
+                            <option value="{{ c.id }}">
+                                {{ c.name }}
+                                {% if c.section %}
+                                    - {{ c.section }}
+                                {% endif %}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
 
 
-{% for class in classes %}
+                    <a href="{% url 'add_class' %}?next=upload_students"
+                       class="btn btn-success">
+                        + Add Class
+                    </a>
 
-<option value="{{class.id}}">
-{{class.name}}
-</option>
+                </div>
 
-{% endfor %}
-</select>
+            </div>
 
-<br>
-<label>CSV File</label>
+            <div class="mb-3">
 
-<input type="file"
-name="csv_file"
-class="form-control"
-accept=".csv"
-required>
+                <label class="form-label">
+                    CSV File
+                </label>
 
-<br>
-<button class="btn-save" name="upload_csv">Upload Students</button>
-</form>
+                <input type="file"
+                       name="csv_file"
+                       class="form-control"
+                       accept=".csv"
+                       required>
+
+            </div>
+
+
+            <button type="submit"
+                    name="upload_csv"
+                    class="btn btn-primary">
+
+                Upload Students
+
+            </button>
+
+
+        </form>
+
+
+    </div>
 
 </div>
+
+
 {% endblock %}

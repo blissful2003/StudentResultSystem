@@ -1,5 +1,3 @@
-
-
 from django.urls import path
 from . import views
 
@@ -29,14 +27,16 @@ urlpatterns = [
     path('teacher/login/', views.teacher_login, name='teacher_login'),
     path('teacher/logout/', views.teacher_logout, name='teacher_logout'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
-    path('teacher/add_mark/<int:student_id>/', views.add_mark, name='teacher_add_mark'),
     path('teacher/', views.teacher_list, name='teacher_list'),
     path('teacher/add/', views.add_teacher, name='add_teacher'),
+    path("teacher/edit/<int:pk>/", views.edit_teacher, name="edit_teacher"),
     path('teacher/delete/<int:pk>/', views.delete_teacher, name='delete_teacher'),
     path('teacher/edit_mark/<int:mark_id>/', views.edit_mark, name='teacher_edit_mark'),
     path('teacher/delete_mark/<int:mark_id>/', views.delete_mark, name='teacher_delete_mark'),
     path('teacher/view_mark/<int:mark_id>/', views.view_mark, name='teacher_view_mark'),
-    path('teacher/mark/add/<int:class_id>/<int:subject_id>/<int:student_id>/', views.add_mark, name='add_mark'),
+    path('teacher/add_mark/<int:student_id>/<int:subject_id>/<int:class_id>/', views.add_mark, name='teacher_add_mark'),
     path('download-student-credentials/<int:class_id>/', views.download_student_credentials, name='download_student_credentials'),
     path('upload-students/', views.upload_students, name='upload_students'),
+    path('class/add/', views.add_class, name='add_class'),
+    
 ]

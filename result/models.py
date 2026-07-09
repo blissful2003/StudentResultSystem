@@ -14,6 +14,7 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     phone = models.CharField(max_length=15, null=True, blank=True)
+    
 
 class Class(models.Model):
     name = models.CharField(max_length=20)
@@ -213,6 +214,10 @@ class Teacher(models.Model):
     
     
 class TeacherAssignment(models.Model):
-    teacher = models.OneToOneField(Teacher, on_delete=models.CASCADE)
-    assigned_class = models.ManyToManyField('Class')
-    subject = models.ManyToManyField('Subject')
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='assignments')
+    class_assigned = models.ForeignKey(Class, on_delete=models.CASCADE)
+    subject_name = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('teacher', 'class_assigned', 'subject_name')
+    def __str__(self):
+        return str(self.teacher)

@@ -40,7 +40,7 @@
 
     <td>
         {% for a in teacher.assignments.all %}
-            {{ a.subject.name }}<br>
+            {{ a.subject_name.name }}{% if not forloop.last %}, {% endif %}
         {% empty %}
             No subject
         {% endfor %}
@@ -48,7 +48,7 @@
 
     <td>
         {% for a in teacher.assignments.all %}
-            {{ a.assigned_class.name }}<br>
+            {{ a.class_assigned.name }}{% if not forloop.last %}, {% endif %}
         {% empty %}
             No class
         {% endfor %}
@@ -62,6 +62,8 @@
             <button type="submit" class="btn btn-sm btn-danger">
                 Delete
             </button>
+            
+            <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-warning btn-sm">Edit</a>
         </form>
     </td>
 </tr>

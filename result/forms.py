@@ -152,4 +152,4 @@ class PasswordChangeForm(BasePasswordChangeForm):
 class TeacherAssignmentForm(forms.ModelForm):
     class Meta:
         model = TeacherAssignment
-        fields = ['teacher', 'assigned_class', 'subject']            
+        fields = ['teacher', 'class_assigned', 'subject_name']
