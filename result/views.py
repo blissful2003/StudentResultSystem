@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from result.decorators import teacher_required
-from result.utils import send_result_email
+from django.core.mail import send_mail
 from .models import Teacher, TeacherAssignment, Subject, Class
 from .models import Result, Student, Subject, Marks, Class, Teacher, TeacherAssignment, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
@@ -122,6 +122,19 @@ def add_student(request):
                 email=student.email,
                 role='student',
             )
+            send_mail(
+                subject="Student Portal Login Credentials",
+                message=f"""Hello {student.first_name},
+                 Your Student Portal login details are:
+                       Username: {username} Password: {password}
+                 Student Portal Link:http://127.0.0.1:8000/student/login/
+
+                Please login and change your password after first login.
+                Thank you.
+                """,
+                from_email=None,recipient_list=[student.email],
+                )
+            
             student.user = user
             student.save()
             messages.success(
@@ -207,6 +220,17 @@ def upload_students(request):
                 email=row['email'],
                 role='student',
             )
+            send_mail(
+                subject="Student portal Login Credentials",
+                message=f"""Hello {Student.first_name}, 
+                Your student portal Login details are:
+                    username: {username} password: {password}
+                    Student Portal Link:http://127.0.0.1:8000/student/login/
+                please Login and change your password after first login.
+                Thank you.""",
+                from_email=None,recipient_list=[Student.email],
+            )
+
             Student.objects.create(
                 user=user,
                 student_id=student_id,
