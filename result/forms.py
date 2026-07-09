@@ -1,5 +1,5 @@
 from django import forms
-from .models import Class, Subject, Student, Marks, TeacherAssignment
+from .models import Class, Subject, Student, Marks, Teacher, TeacherAssignment
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeForm
@@ -153,3 +153,17 @@ class TeacherAssignmentForm(forms.ModelForm):
     class Meta:
         model = TeacherAssignment
         fields = ['teacher', 'class_assigned', 'subject_name']
+
+class TeacherEditForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['user']
+
+        widgets = {
+            'assigned_class': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'subject': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+        }

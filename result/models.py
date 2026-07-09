@@ -219,5 +219,6 @@ class TeacherAssignment(models.Model):
     subject_name = models.ForeignKey(Subject, on_delete=models.CASCADE)
     class Meta:
         unique_together = ('teacher', 'class_assigned', 'subject_name')
+
     def __str__(self):
-        return str(self.teacher)
+        return f"{self.teacher} - {self.assigned_class} - {self.subject}"

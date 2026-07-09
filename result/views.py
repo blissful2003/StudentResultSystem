@@ -257,29 +257,6 @@ def upload_students(request):
         "classes": classes
     })
 
-
-def download_student_credentials(request, class_id):
-    students = Student.objects.filter(class_name_id=class_id).order_by('student_id')
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="student_credentials.csv"'
-    writer = csv.writer(response)
-    writer.writerow([
-        'Student ID',
-        'Username',
-        'Password'
-        'class'
-    ])
-
-    for student in students:
-        writer.writerow([
-            student.student_id,
-            student.student_id,
-            student.date_of_birth,
-            student.class_name.class_name
-        ])
-
-    return response
-
 @login_required(login_url='login')
 def add_subject(request):
     form = SubjectForm(request.POST or None)
@@ -504,17 +481,6 @@ def student_result_view(request):
     }
     return render(request, 'student/result.html', context)
 
-def publish_results(request, class_id):
-    results = Result.objects.filter(student_class_id=class_id, is_published=False)
-    count = results.count()
-    results.update(is_published=True, published_at=timezone.now())
-    
-    
-    send_result_email(class_id)   
-    
-    messages.success(request, f"{count} student ko result publish vayo!")
-    return redirect('admin_class_results', class_id=class_id)
-
 def teacher_login(request):
     if request.method =='POST':
         username = request.POST.get('username')
@@ -560,7 +526,6 @@ def teacher_dashboard(request):
 
     return render(request, 'teacher/dashboard.html', {'dashboard_data': dashboard_data})
 
-    return render(request, "teacher/profile.html", context)
 @teacher_required
 def add_mark(request, student_id, subject_id, class_id):
     teacher = request.user.teacher
@@ -698,7 +663,6 @@ def add_teacher(request):
                 'assignments': assignments,
                 'login_url': request.build_absolute_uri('/teacher/login/'),
             })
-
     return render(request, 'result/add_teacher.html', {'subjects': subjects,'classes': classes,})
 
 @login_required(login_url='login')
@@ -733,22 +697,33 @@ def edit_teacher(request, pk):
         user.email = request.POST.get("email")
         user.save()
 
-        subject_ids = request.POST.getlist("subjects")
-        class_ids = request.POST.getlist("assigned_classes")
-
         
-        TeacherAssignment.objects.filter(teacher=teacher).delete()
+        subject_id = request.POST.get("subject")
+        class_id = request.POST.get("assigned_class")
 
-    
-        selected_subjects = Subject.objects.filter(id__in=subject_ids)
-        selected_classes = Class.objects.filter(id__in=class_ids)
+        if subject_id and class_id:
 
-        for cls in selected_classes:
-            for subj in selected_subjects:
+            selected_subject = get_object_or_404(
+                Subject,
+                id=subject_id
+            )
+
+            selected_class = get_object_or_404(
+                Class,
+                id=class_id
+            )
+
+            exists = TeacherAssignment.objects.filter(
+                teacher=teacher,
+                class_assigned=selected_class,
+                subject_name=selected_subject
+            ).exists()
+
+            if not exists:
                 TeacherAssignment.objects.create(
                     teacher=teacher,
-                    class_assigned=cls,
-                    subject_name=subj,
+                    class_assigned=selected_class,
+                    subject_name=selected_subject,
                 )
 
         return redirect("teacher_list")

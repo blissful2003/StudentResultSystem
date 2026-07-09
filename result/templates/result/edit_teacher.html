@@ -117,45 +117,15 @@ body{
 
                         <div class="row">
 
-                            <!-- Subjects -->
+                          <label>Subject</label>
 
-                            <div class="col-md-6">
-
-                                <h5 class="section-title">
-                                    Assign Subjects
-                                </h5>
-
-                                <div class="checkbox-container">
-
-                                {% for subject in subjects %}
-
-                                <div class="form-check">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="subjects"
-                                        value="{{ subject.id }}"
-                                        id="subject{{ subject.id }}"
-
-                                        {% for a in assignments %}
-                                            {% if a.subject_name.id == subject.id %}
-                                                checked
-                                            {% endif %}
-                                        {% endfor %}
-                                    >
-
-                                    <label class="form-check-label" for="subject{{ subject.id }}">
-                                        {{ subject.name }}
-                                    </label>
-
-                                </div>
-
-                                {% endfor %}
-
-                                </div>
-
-                            </div>
+<select name="subject" class="form-control">
+    {% for subject in subjects %}
+        <option value="{{ subject.id }}">
+            {{ subject.name }}
+        </option>
+    {% endfor %}
+</select>
 
 
                             <!-- Classes -->
