@@ -80,7 +80,7 @@ csv_file = forms.FileField()
 class MarksForm(forms.ModelForm):
     class Meta:
         model = Marks
-        fields = ['theory_obtained', 'practical_obtained']
+        fields = ['student','subject','theory_obtained', 'practical_obtained']
         widgets = {
             'theory_obtained': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0'}),
             'practical_obtained': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0'}),

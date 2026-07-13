@@ -13,8 +13,7 @@ class CustomUser(AbstractUser):
         ('student', 'Student'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
-    phone = models.CharField(max_length=15, null=True, blank=True)
-    
+    phone = models.CharField(max_length=15, null=True, blank=True) 
 
 class Class(models.Model):
     name = models.CharField(max_length=20)
@@ -184,10 +183,7 @@ class Marks(models.Model):
         else:
             self.grade = 'NG'
 
-        super().save(*args, **kwargs)
-        is_published = models.BooleanField(default=False)
-        created_at = models.DateTimeField(auto_now_add=True)
-        
+      
     def __str__(self):
         return f"{self.student} - {self.subject.name}"
 
@@ -223,4 +219,11 @@ class TeacherAssignment(models.Model):
         unique_together = ('teacher', 'class_assigned', 'subject_name')
 
     def __str__(self):
-        return f"{self.teacher} - {self.assigned_class} - {self.subject}"
+        return f"{self.teacher} - {self.class_assigned} - {self.subject_name}"
+class Resultpublished(models.Model):
+    class_name = models.OneToOneField('Class', on_delete=models.CASCADE)
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.class_name} - {'published' if self.is_published else 'Not Published'}"

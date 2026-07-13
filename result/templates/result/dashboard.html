@@ -133,9 +133,11 @@
         <h4> Welcome, {{ request.user.username|title }}!</h4>
         <p>Student Result System — Admin Dashboard</p>
     </div>
+    
     <a href="{% url 'add_student' %}" class="btn btn-light fw-semibold px-4">
         + add new student
     </a>
+
 </div>
 
 
@@ -145,6 +147,7 @@
         <div class="stat-card h-100" style="background:#e8f0fe;">
             <div class="d-flex align-items-start justify-content-between">
                 <div>
+                    
                     <div class="stat-label" style="color:#1a73e8;">Total Students</div>
                     
                     <div class="stat-number" style="color:#1a73e8;">{{ total_students }}</div>
@@ -278,7 +281,9 @@
             {% endfor %}
         </div>
     </div>
-
+   <a href="{% url 'publish_result' %}" class="btn btn-primary">
+    Publish Result
+</a>
 </div>
 
 {% endblock %}

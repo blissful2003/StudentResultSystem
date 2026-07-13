@@ -1,6 +1,6 @@
 from ast import Return
 import csv
-from datetime import datetime, timezone
+from django.utils import timezone
 import email
 from itertools import count
 from pickle import MARK
@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from result.decorators import teacher_required
 from django.core.mail import send_mail
-from .models import Teacher, TeacherAssignment, Subject, Class
+from .models import Resultpublished, Teacher, TeacherAssignment, Subject, Class
 from .models import Result, Student, Subject, Marks, Class, Teacher, TeacherAssignment, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -207,11 +207,7 @@ def upload_students(request):
             print(User)
             username = student_id
             password = row['date_of_birth'].replace("-", "")
-            # if User.objects.filter(username=username).exists():
-            #    print("Already exists:", username)
-            # continue
-            # print("USERNAME:", username)
-            # print("EXISTS:", User.objects.filter(username=username).exists())
+            
             user = User.objects.create(
                 username=username,
                 password=password,
@@ -389,22 +385,32 @@ def student_dashboard(request):
         student = request.user.student_profile
     except:
         return redirect('student_login')
+
     my_marks = Marks.objects.filter(student=student)
+
     total_obtained = sum(m.marks_obtained for m in my_marks)
     total_full = sum(m.subject.full_marks for m in my_marks)
+
     overall_pct = round((total_obtained / total_full * 100) if total_full else 0, 2)
 
-    class_students_qs = Student.objects.filter(class_name=student.class_name).order_by('roll_number')
+    
+    overall_pass = all(mark.is_pass for mark in my_marks)
 
-    class_students = []
-    for s in class_students_qs:
-        s_marks = Marks.objects.filter(student=s)
-        if s_marks.exists():
-            status = 'Pass' if all(m.is_pass for m in s_marks) else 'Fail'
-        else:
-            status = 'Pending'
-        s.status = status
-        class_students.append(s)
+    
+    if overall_pct >= 90:
+        overall_grade = "A+"
+    elif overall_pct >= 80:
+        overall_grade = "A"
+    elif overall_pct >= 70:
+        overall_grade = "B+"
+    elif overall_pct >= 60:
+        overall_grade = "B"
+    elif overall_pct >= 50:
+        overall_grade = "C+"
+    elif overall_pct >= 40:
+        overall_grade = "C"
+    else:
+        overall_grade = "NG"
 
     return render(request, 'student/dashboard.html', {
         'student': student,
@@ -412,8 +418,11 @@ def student_dashboard(request):
         'total_obtained': total_obtained,
         'total_full': total_full,
         'overall_pct': overall_pct,
-        'class_students': class_students,
+        'overall_grade': overall_grade,
+        'overall_pass': overall_pass,
     })
+
+
 
 @login_required(login_url='student_login')
 def student_own_result(request):
@@ -536,7 +545,7 @@ def add_mark(request, student_id, subject_id, class_id):
     student = get_object_or_404(Student, id=student_id, class_name_id=class_id)
     subject = assignment.subject_name
 
-    mark_instance = Marks.objects.filter(student=student, subject=subject).first()
+    mark_instance = Marks.objects.filter(student=student, subject=subject, is_publish=True).first()
 
     if request.method == 'POST':
         form = MarksForm(request.POST, instance=mark_instance)
@@ -738,14 +747,24 @@ def edit_teacher(request, pk):
 
     return render(request, "result/edit_teacher.html", context)
 
+@login_required(login_url='login')
+def publish_result(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied')
+        return redirect('teacher_dashboard')
+    results = Resultpublished.objects.all()
+    return render(request, 'result/publish_result.html', {'results': results})
 
-@login_required
-def publish_result(request, id):
-    mark = get_object_or_404(Marks, id=id)
-    mark.is_published = True
-    mark.save()
-    messages.success(
-        request,
-        "Result published successfully!"
-    )
-    return redirect('admin_marks')
+
+@login_required(login_url='login')
+def publish_class(request, id):
+    if not request.user.is_superuser:
+      messages.error(request, "Access denied")
+      return redirect('teacher_dashboard')
+    result = Resultpublished.objects.get(id=id)
+    result.is_published = True
+    result.published_at = timezone.now()
+
+    messages.success(request, "Result published successfully!")
+    return redirect('publish_result')
+

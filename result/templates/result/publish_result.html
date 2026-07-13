@@ -1,0 +1,54 @@
+{% extends 'result/dashboard.html' %}
+
+{% block content %}
+
+<h3>Publish Result</h3>
+
+<table class="table table-bordered">
+
+<tr>
+    <th>Class</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
+
+{% for item in results %}
+
+<tr>
+
+<td>
+{{ item.class_name }}
+</td>
+
+<td>
+{% if item.is_published %}
+<span class="badge bg-success">
+Published
+</span>
+{% else %}
+<span class="badge bg-warning">
+Not Published
+</span>
+{% endif %}
+</td>
+
+<td>
+
+{% if not item.is_published %}
+
+<a href="{% url 'publish_class' item.id %}"
+class="btn btn-success btn-sm">
+Publish
+</a>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}
