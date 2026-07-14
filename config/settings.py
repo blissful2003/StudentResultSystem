@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'result',
     # we add this to ajango knows about app listed in installed app
 ]
+LOGIN_URL = 'teacher_login'
 AUTH_USER_MODEL = 'result.CustomUser'
 
 MIDDLEWARE = [

@@ -146,7 +146,7 @@
             <div class="col-md-12">
                 <label class="form-label">Subject *</label>
                 {{ form.subject }}
-                <a href="{% url 'add_subject' %}" style="font-size:0.8rem; color:#2e7d32; text-decoration:none;">
+                <a href="{% url 'result:add_subject' %}" style="font-size:0.8rem; color:#2e7d32; text-decoration:none;">
                     + Add new subject
                 </a>
                 {% for error in form.subject.errors %}
@@ -186,7 +186,7 @@
 
         <div class="d-flex gap-3 mt-4">
             <button type="submit" class="btn-save"> Save Marks</button>
-            <a href="{% url 'student_list' %}" class="btn-cancel">Cancel</a>
+            <a href="{% url 'result:student_list' %}" class="btn-cancel">Cancel</a>
         </div>
 
     </form>

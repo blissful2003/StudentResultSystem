@@ -215,6 +215,7 @@ class TeacherAssignment(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='assignments')
     class_assigned = models.ForeignKey(Class, on_delete=models.CASCADE)
     subject_name = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    
     class Meta:
         unique_together = ('teacher', 'class_assigned', 'subject_name')
 

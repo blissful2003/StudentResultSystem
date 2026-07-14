@@ -180,9 +180,9 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
 
-            <a class="navbar-brand text-white" href="{% url 'dashboard' %}">
-                Student Result System
-            </a>
+         <a class="navbar-brand text-white" href="{% url 'result:dashboard' %}">
+    Student Result System
+</a>
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
@@ -192,10 +192,10 @@
             <div class="collapse navbar-collapse" id="navMenu">
 
                 <div class="d-flex gap-1 ms-3 flex-wrap align-items-center">
-                    <a href="{% url 'dashboard' %}" class="nav-link-btn">Dashboard</a>
-                    <a href="{% url 'student_list' %}" class="nav-link-btn">Students</a>
-                    <a href="{% url 'add_marks' %}" class="nav-link-btn">Add Marks</a>
-                    <a href="{% url 'subject_list' %}" class="nav-link-btn">Subjects</a>
+                    <a href="{% url 'result:dashboard' %}" class="nav-link-btn">Dashboard</a>
+                    <a href="{% url 'result:student_list' %}" class="nav-link-btn">Students</a>
+                    <a href="{% url 'result:add_marks' %}" class="nav-link-btn">Add Marks</a>
+                    <a href="{% url 'result:subject_list' %}" class="nav-link-btn">Subjects</a>
                 </div>
 
             
@@ -218,19 +218,19 @@
                         </div>
 
                         
-                        <a href="{% url 'profile' %}" class="dropdown-item-custom">
+                        <a href="{% url 'result:profile' %}" class="dropdown-item-custom">
                             <span class="icon"> </span> My Profile
                         </a>
 
                         
-                        <a href="{% url 'change_password' %}" class="dropdown-item-custom">
+                        <a href="{% url 'result:change_password' %}" class="dropdown-item-custom">
                             <span class="icon"> </span> Change Password
                         </a>
 
                         <div class="dropdown-divider"></div>
 
                         
-                        <a href="{% url 'logout' %}" class="dropdown-item-custom logout">
+                        <a href="{% url 'result:admin_logout' %}" class="dropdown-item-custom logout">
                             <span class="icon"> </span> Logout
                         </a>
                     </div>

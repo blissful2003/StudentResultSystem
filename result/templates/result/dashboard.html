@@ -134,7 +134,7 @@
         <p>Student Result System — Admin Dashboard</p>
     </div>
     
-    <a href="{% url 'add_student' %}" class="btn btn-light fw-semibold px-4">
+    <a href="{% url 'result:add_student' %}" class="btn btn-light fw-semibold px-4">
         + add new student
     </a>
 
@@ -220,20 +220,20 @@
         <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
             <div class="section-title">Quick Actions</div>
             <div class="d-flex flex-column gap-2">
-                <a href="{% url 'add_student' %}" class="quick-btn" style="background:#e8f0fe; color:#1a73e8;">
+                <a href="{% url 'result:add_student' %}" class="quick-btn" style="background:#e8f0fe; color:#1a73e8;">
                     <span>Add new student</span>
                 </a>
-                <a href="{% url 'add_subject' %}" class="quick-btn" style="background:#fff3e0; color:#e65100;">
+                <a href="{% url 'result:add_subject' %}" class="quick-btn" style="background:#fff3e0; color:#e65100;">
                     <span>Add new subject</span>
                 </a>
-                <a href="{% url 'add_marks' %}" class="quick-btn" style="background:#e8f5e9; color:#2e7d32;">
+                <a href="{% url 'result:add_marks' %}" class="quick-btn" style="background:#e8f5e9; color:#2e7d32;">
                     <span>Add marks</span>
                 </a>
-                <a href="{% url 'student_list' %}" class="quick-btn" style="background:#f3e5f5; color:#6a1b9a;">
+                <a href="{% url 'result:student_list' %}" class="quick-btn" style="background:#f3e5f5; color:#6a1b9a;">
                     <span>Search all the Students</span>
                 </a>
                 
-                <a href="{% url 'teacher_list' %}" class="quick-btn" style="background:#e8f5f5; color:#00695c;">
+                <a href="{% url 'result:teacher_list' %}" class="quick-btn" style="background:#e8f5f5; color:#00695c;">
                     <span> Manage Teachers</span>
                 </a>
             </div>
@@ -281,7 +281,7 @@
             {% endfor %}
         </div>
     </div>
-   <a href="{% url 'publish_result' %}" class="btn btn-primary">
+   <a href="{% url 'result:publish_result' %}" class="btn btn-primary">
     Publish Result
 </a>
 </div>

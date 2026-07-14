@@ -154,7 +154,7 @@
             <div class="col-md-6">
                 <label class="form-label">Class *</label>
                 {{ form.class_name }}
-                <a href="{% url 'add_class' %}?next=add_student"
+                <a href="{% url 'result:add_class' %}?next=add_student"
                     style="font-size:0.8rem; color:#1a73e8; text-decoration:none;">
                     + Add new class
                 </a>
@@ -218,7 +218,7 @@
             </div>
         </div>
 
-            <a href="{% url 'upload_students' %}" class="btn btn-success">Upload Students CSV</a>
+            <a href="{% url 'result:upload_students' %}" class="btn btn-success">Upload Students CSV</a>
 <div class="section-title green">Login Credentials</div>
 <div class="credential-box">
     <div class="row g-3">
@@ -240,7 +240,7 @@
             <button type="submit" class="btn-save">
                 {% if edit %}Update{% else %}Save{% endif %}
             </button>
-            <a href="{% url 'student_list' %}" class="btn-cancel">Cancel</a>
+            <a href="{% url 'result:student_list' %}" class="btn-cancel">Cancel</a>
         </div>
     </form>
 </div>

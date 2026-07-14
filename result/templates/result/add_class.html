@@ -122,11 +122,11 @@
             <button type="submit" class="btn-save">Save</button>
 
             {% if next == 'upload_students' %}
-                <a href="{% url 'upload_students' %}" class="btn-cancel">
+                <a href="{% url 'result:upload_students' %}" class="btn-cancel">
                     Cancel
                 </a>
             {% else %}
-                <a href="{% url 'add_subject' %}" class="btn-cancel">
+                <a href="{% url 'result:add_subject' %}" class="btn-cancel">
                     Cancel
                 </a>
             {% endif %}

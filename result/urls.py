@@ -1,9 +1,10 @@
+app_name = 'result'
 from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.admin_login, name='login'),
-    path('logout/', views.admin_logout, name='logout'),
+    path('', views.admin_login, name='admin_login'),
+    path('logout/', views.admin_logout, name='admin_logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('students/', views.student_list, name='student_list'),
     path('students/add/', views.add_student, name='add_student'),
@@ -39,5 +40,4 @@ urlpatterns = [
     path('class/add/', views.add_class, name='add_class'),
     path('publish-result/', views.publish_result, name='publish_result'),
     path('publish-result/<int:id>/', views.publish_class, name='publish_class'),
-       
 ]

@@ -26,9 +26,9 @@ User = get_user_model()
 def admin_login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-         return redirect('dashboard')
+         return redirect('result:dashboard')
         else:
-            return redirect('teacher_dashboard')
+            return redirect('result:teacher_dashboard')
     if request.method == 'POST':
         user = authenticate(
             request,
@@ -38,23 +38,23 @@ def admin_login(request):
         if user is not None:
             auth_login(request, user)
             if user.is_superuser:
-             return redirect('dashboard')
+             return redirect('result:dashboard')
             else:
-                return redirect('teacher_dashboard')
+                return redirect('result:teacher_dashboard')
         messages.error(request, 'Username and password incorrect!')
     return render(request, 'result/login.html')
 
 
 def admin_logout(request):
     auth_logout(request)
-    return redirect('login')
+    return redirect('result:admin_login')
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def dashboard(request):
     if not request.user.is_superuser:
         messages.error(request, "Access Denied!")
-        return redirect('teacher_dashboard')
+        return redirect('result:teacher_dashboard')
 
     return render(request, 'result/dashboard.html', {
         'total_students': Student.objects.count(),
@@ -64,7 +64,7 @@ def dashboard(request):
     })
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def student_list(request):
     query = request.GET.get('roll', '')
     selected_class = request.GET.get('class_id', '')
@@ -87,7 +87,6 @@ def student_list(request):
                     'class': cls,
                     'students': cls_students
                 })
-
     return render(request, 'result/student_list.html', {
         'students': students,
         'grouped': grouped,
@@ -95,9 +94,7 @@ def student_list(request):
         'classes': classes,
         'selected_class': selected_class,
     })
-
-
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def add_student(request):
     if request.method == "POST" and "upload_csv" in request.POST:
      class_id = request.POST.get("class_id")
@@ -141,7 +138,7 @@ def add_student(request):
                 request,
                 f'Student added! | Username: {username} | Password: {password}'
             )
-            return redirect('student_list')
+            return redirect('result:student_list')
         else:
           messages.error(request, form.non_field_errors().as_text().replace("* ", ""))
           
@@ -150,7 +147,7 @@ def add_student(request):
     return render(request, 'result/add_student.html', {'form': form})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def edit_student(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':
@@ -164,13 +161,13 @@ def edit_student(request, pk):
                 student.user.save()
             updated_student.save()
             messages.success(request, 'Student updated!')
-            return redirect('student_list')
+            return redirect('result:student_list')
     else:
         form = StudentForm(instance=student)
     return render(request, 'result/add_student.html', {'form': form, 'edit': True})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def delete_student(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':
@@ -178,10 +175,10 @@ def delete_student(request, pk):
             student.user.delete()
         student.delete()
         messages.success(request, 'Student deleted!')
-        return redirect('student_list')
+        return redirect('result:student_list')
     return render(request, 'result/confirm_delete.html', {'student': student})
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def upload_students(request):
     classes = Class.objects.all()
     if request.method == "POST":
@@ -202,7 +199,7 @@ def upload_students(request):
             if Student.objects.filter(phone=row['phone']).exists():
                 print("Phone number already exit")
                 continue
-            #print(row['roll_number'], row['first_name'])
+    
             student_id = generate_student_id()
             print(User)
             username = student_id
@@ -248,34 +245,34 @@ def upload_students(request):
             print("Total uploaded:", count)
     
         messages.success(request, "Students uploaded successfully!")
-        return redirect('student_list')
+        return redirect('result:student_list')
     return render(request, "result/upload_student.html", {
         "classes": classes
     })
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def add_subject(request):
     form = SubjectForm(request.POST or None)
     if form.is_valid():
         form.save()
         messages.success(request, 'Subject added successfully!')
-        return redirect('dashboard')
+        return redirect('result:dashboard')
     else:
          print(form.errors)
     return render(request, 'result/add_subject.html', {'form': form})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def admin_add_marks(request):
     form = MarksForm(request.POST or None)
     if form.is_valid():
         form.save()
         messages.success(request, 'Marks added successfully!')
-        return redirect('student_list')
+        return redirect('result:student_list')
     return render(request, 'result/add_marks.html', {'form': form})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def student_result(request, pk):
     student = get_object_or_404(Student, pk=pk)
     marks_list = Marks.objects.filter(student=student)
@@ -291,45 +288,45 @@ def student_result(request, pk):
     })
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def edit_marks(request, pk):
     mark = get_object_or_404(Marks, pk=pk)
     form = MarksForm(request.POST or None, instance=mark)
     if form.is_valid():
         form.save()
         messages.success(request, 'Marks updated successfully!')
-        return redirect('student_result', pk=mark.student.pk)
+        return redirect('result:student_result', pk=mark.student.pk)
     return render(request, 'result/add_marks.html', {'form': form, 'edit': True})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def subject_list(request):
     subjects = Subject.objects.all()
     return render(request, 'result/subject_list.html', {'subjects': subjects})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def edit_subject(request, pk):
     subject = get_object_or_404(Subject, pk=pk)
     form = SubjectForm(request.POST or None, instance=subject)
     if form.is_valid():
         form.save()
         messages.success(request, 'Subject updated successfully!')
-        return redirect('subject_list')
+        return redirect('result:subject_list')
     return render(request, 'result/add_subject.html', {'form': form, 'edit': True})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def delete_subject(request, pk):
     subject = get_object_or_404(Subject, pk=pk)
     if request.method == 'POST':
         subject.delete()
         messages.success(request, 'Subject deleted successfully!')
-        return redirect('subject_list')
+        return redirect('result:subject_list')
     return render(request, 'result/confirm_delete_subject.html', {'subject': subject})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def add_class(request):
     next_page = request.GET.get('next') or request.POST.get('next') or 'add_subject'
 
@@ -338,26 +335,26 @@ def add_class(request):
     if form.is_valid():
         form.save()
         messages.success(request, 'Class added successfully!')
-        return redirect(next_page)
+        return redirect('result:' + next_page)
 
     return render(request, 'result/add_class.html', {
         'form': form,
         'next': next_page
     })
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def profile(request):
     return render(request, 'result/profile.html', {'user': request.user})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def change_password(request):
     form = PasswordChangeForm(request.user, request.POST or None)
     if form.is_valid():
         user = form.save()
         update_session_auth_hash(request, user)
         messages.success(request, 'Password changed successfully!')
-        return redirect('profile')
+        return redirect('result:profile')
     return render(request, 'result/change_password.html', {'form': form})
 
 
@@ -368,7 +365,7 @@ def student_login(request):
         user = authenticate(request, username=username, password=password)
         if user and hasattr(user, 'student_profile'):
             auth_login(request, user)
-            return redirect('student_dashboard')
+            return redirect('result:student_dashboard')
         else:
             messages.error(request, 'Invalid username or password!')
     return render(request, 'student/login.html')
@@ -376,15 +373,15 @@ def student_login(request):
 
 def student_logout(request):
     auth_logout(request)
-    return redirect('student_login')
+    return redirect('result:student_login')
 
 
-@login_required(login_url='student_login')
+@login_required(login_url='result:student_login')
 def student_dashboard(request):
     try:
         student = request.user.student_profile
     except:
-        return redirect('student_login')
+        return redirect('result:student_login')
 
     my_marks = Marks.objects.filter(student=student)
 
@@ -424,12 +421,12 @@ def student_dashboard(request):
 
 
 
-@login_required(login_url='student_login')
+@login_required(login_url='result:student_login')
 def student_own_result(request):
     try:
         student = request.user.student_profile
     except:
-        return redirect('student_login')
+        return redirect('result:student_login')
     marks_list = Marks.objects.filter(student=student)
     total_obtained = sum(m.marks_obtained for m in marks_list)
     total_full = sum(m.subject.full_marks for m in marks_list)
@@ -442,7 +439,7 @@ def student_own_result(request):
         'overall_pct': overall_pct,
     })
 
-@login_required
+@login_required(login_url='result:student_login')
 def student_result_view(request):
     student = get_object_or_404(Student, user=request.user)
     
@@ -497,17 +494,18 @@ def teacher_login(request):
         user = authenticate(request, username=username, password=password)
         if user and hasattr(user, 'teacher'):
             auth_login(request, user)
-            return redirect('teacher_dashboard')
+            return redirect('result:teacher_dashboard')
         else:
             messages.error(request, 'Invalid username and password!')
     return render(request, 'teacher/login.html')
 
+
 def teacher_logout(request):
     auth_logout(request)
-    return redirect('teacher_login')
+    return redirect('result:teacher_login')
 
 
-@teacher_required
+@login_required(login_url='result:teacher_login')
 def teacher_dashboard(request):
     teacher = request.user.teacher
     assignments = TeacherAssignment.objects.filter(teacher=teacher).select_related('class_assigned', 'subject_name')
@@ -533,7 +531,7 @@ def teacher_dashboard(request):
             'students': student_data,
         })
 
-    return render(request, 'teacher/dashboard.html', {'dashboard_data': dashboard_data})
+        return render(request, 'teacher/dashboard.html', {'dashboard_data': dashboard_data})
 
 @teacher_required
 def add_mark(request, student_id, subject_id, class_id):
@@ -555,7 +553,7 @@ def add_mark(request, student_id, subject_id, class_id):
             mark.subject = subject
             mark.save()
             messages.success(request, "Marks saved successfully.")
-            return redirect('teacher_dashboard')
+            return redirect('result:teacher_dashboard')
     else:
         form = MarksForm(instance=mark_instance)
 
@@ -569,7 +567,7 @@ def view_mark(request, mark_id):
     is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject_name=mark.subject).exists()
     if not is_authorized:
         messages.error(request, "Unauthorized.")
-        return redirect('teacher_dashboard')
+        return redirect('result:teacher_dashboard')
     return render(request, 'teacher/view_mark.html', {'mark': mark})
 
 
@@ -581,14 +579,14 @@ def edit_mark(request, mark_id):
     is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject_name=mark.subject).exists()
     if not is_authorized:
         messages.error(request, "Unauthorized.")
-        return redirect('teacher_dashboard')
+        return redirect('result:teacher_dashboard')
 
     if request.method == 'POST':
         form = MarksForm(request.POST, instance=mark)
         if form.is_valid():
             form.save()
             messages.success(request, "Marks updated successfully.")
-            return redirect('teacher_dashboard')
+            return redirect('result:teacher_dashboard')
     else:
         form = MarksForm(instance=mark)
 
@@ -601,28 +599,28 @@ def delete_mark(request, mark_id):
     is_authorized = TeacherAssignment.objects.filter(teacher=teacher, subject_name=mark.subject).exists()
     if not is_authorized:
         messages.error(request, "Unauthorized.")
-        return redirect('teacher_dashboard')
+        return redirect('result:teacher_dashboard')
 
     mark.delete()
 
     messages.success(request, "Marks deleted successfully.")
-    return redirect('teacher_dashboard')
+    return redirect('result:teacher_dashboard')
 
 def generate_password(length=6):
     chars = string.ascii_letters + string.digits
     return ''.join(secrets.choice(chars) for _ in range(length))
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def teacher_list(request):
     if not request.user.is_staff:
-        return redirect('dashboard')
+        return redirect('result:dashboard')
     teachers = Teacher.objects.select_related('user').prefetch_related('assignments__subject_name','assignments__class_assigned')
     return render(request, 'result/teacher_list.html', {'teachers': teachers})
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def add_teacher(request):
     if not request.user.is_staff:
-        return redirect('dashboard')
+        return redirect('result:dashboard')
 
     subjects = Subject.objects.all()
     classes = Class.objects.all()
@@ -674,97 +672,81 @@ def add_teacher(request):
             })
     return render(request, 'result/add_teacher.html', {'subjects': subjects,'classes': classes,})
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def delete_teacher(request, pk):
     if not request.user.is_staff:
-        return redirect('dashboard')
+        return redirect('result:dashboard')
     teacher = get_object_or_404(Teacher, pk=pk)
     if request.method == 'POST':
         teacher.user.delete()
         messages.success(request, 'Teacher deleted!')
-        return redirect('teacher_list')
+        return redirect('result:teacher_list')
     return render(request, 'result/confirm_delete_teacher.html', {'teacher': teacher})
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def edit_teacher(request, pk):
     if not request.user.is_staff:
-        return redirect('dashboard')
+        return redirect('result:dashboard')
 
     teacher = get_object_or_404(Teacher, pk=pk)
     user = teacher.user
-
-    assignments = TeacherAssignment.objects.filter(teacher=teacher)
 
     subjects = Subject.objects.all()
     classes = Class.objects.all()
 
     if request.method == "POST":
 
-        
         user.first_name = request.POST.get("first_name")
         user.last_name = request.POST.get("last_name")
         user.email = request.POST.get("email")
         user.save()
 
-        
-        subject_id = request.POST.get("subject")
-        class_id = request.POST.get("assigned_class")
+        class_ids = request.POST.getlist("assigned_class[]")
+        subject_ids = request.POST.getlist("subject[]")
 
-        if subject_id and class_id:
+        TeacherAssignment.objects.filter(teacher=teacher).delete()
 
-            selected_subject = get_object_or_404(
-                Subject,
-                id=subject_id
-            )
-
-            selected_class = get_object_or_404(
-                Class,
-                id=class_id
-            )
-
-            exists = TeacherAssignment.objects.filter(
+        for class_id, subject_id in zip(class_ids, subject_ids):
+            TeacherAssignment.objects.get_or_create(
                 teacher=teacher,
-                class_assigned=selected_class,
-                subject_name=selected_subject
-            ).exists()
+                class_assigned_id=class_id,
+                subject_name_id=subject_id
+            )
+        return redirect("result:teacher_list")
 
-            if not exists:
-                TeacherAssignment.objects.create(
-                    teacher=teacher,
-                    class_assigned=selected_class,
-                    subject_name=selected_subject,
-                )
-
-        return redirect("teacher_list")
-
+    assignments = TeacherAssignment.objects.filter(teacher=teacher).select_related(
+        'class_assigned', 'subject_name'
+    )
     context = {
-        "teacher": teacher,
-        "user": user,
-        "subjects": subjects,
-        "classes": classes,
-        "assignments": assignments,
+        'teacher': teacher,
+        'user': teacher.user,
+        'subjects': subjects,
+        'classes': classes,
+        'assignments': assignments,
     }
 
     return render(request, "result/edit_teacher.html", context)
 
-@login_required(login_url='login')
-def publish_result(request):
+@login_required(login_url='result:admin_login')
+def publish_result(request, id):
     if not request.user.is_superuser:
-        messages.error(request, 'Access denied')
-        return redirect('teacher_dashboard')
-    results = Resultpublished.objects.all()
-    return render(request, 'result/publish_result.html', {'results': results})
+        messages.error(request, "Access denied")
+        return redirect('result:teacher_dashboard')
+    result = Resultpublished.objects.get(id=id)
+    result.is_published = True
+    result.published_at = timezone.now()
+    return render(request, 'result/publish_result.html', {'results': result})
 
 
-@login_required(login_url='login')
+@login_required(login_url='result:admin_login')
 def publish_class(request, id):
     if not request.user.is_superuser:
       messages.error(request, "Access denied")
-      return redirect('teacher_dashboard')
+      return redirect('result:teacher_dashboard')
     result = Resultpublished.objects.get(id=id)
     result.is_published = True
     result.published_at = timezone.now()
 
     messages.success(request, "Result published successfully!")
-    return redirect('publish_result')
+    return redirect('result:publish_result')
 

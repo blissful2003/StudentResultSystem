@@ -9,13 +9,11 @@
 body{
     background:#f4f6f9;
 }
-
 .card{
     border:none;
     border-radius:15px;
     box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
-
 .card-header{
     background:#0d6efd;
     color:white;
@@ -24,45 +22,22 @@ body{
     text-align:center;
     border-radius:15px 15px 0 0!important;
 }
-
-.form-control{
+.form-control, .form-select{
     border-radius:10px;
 }
-
-.form-check{
-    padding:8px 30px;
-    border:1px solid #ddd;
-    border-radius:8px;
-    margin-bottom:8px;
-    transition:.3s;
-}
-
-.form-check:hover{
-    background:#eef5ff;
-}
-
 .section-title{
     font-weight:600;
     color:#0d6efd;
     margin-bottom:10px;
 }
-
 .btn{
     border-radius:10px;
-}
-
-.checkbox-container{
-    max-height:250px;
-    overflow-y:auto;
 }
 </style>
 
 <div class="container mt-5">
-
     <div class="row justify-content-center">
-
         <div class="col-lg-8">
-
             <div class="card">
 
                 <div class="card-header">
@@ -72,127 +47,137 @@ body{
                 <div class="card-body p-4">
 
                     <form method="POST">
-
                         {% csrf_token %}
 
                         <div class="row">
-
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">First Name</label>
-
-                                <input
-                                    type="text"
-                                    name="first_name"
-                                    class="form-control"
-                                    value="{{ user.first_name }}"
-                                    required>
+                                <input type="text" name="first_name" class="form-control"
+                                       value="{{ user.first_name }}" required>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Last Name</label>
-
-                                <input
-                                    type="text"
-                                    name="last_name"
-                                    class="form-control"
-                                    value="{{ user.last_name }}"
-                                    required>
+                                <input type="text" name="last_name" class="form-control"
+                                       value="{{ user.last_name }}" required>
                             </div>
+                        </div>
 
+                        <div class="mb-4">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control"
+                                   value="{{ user.email }}">
                         </div>
 
 
                         <div class="mb-4">
+                            <label class="section-title">Assign Class & Subject *</label>
 
-                            <label class="form-label">Email</label>
+                            <table class="table" id="assignmentTable">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Subject</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assignmentBody">
 
-                            <input
-                                type="email"
-                                name="email"
-                                class="form-control"
-                                value="{{ user.email }}">
+                                    {% for a in assignments %}
+                                    <tr class="assignment-row">
+                                        <td>
+                                            <select name="assigned_class[]" class="form-select" required>
+                                                {% for cls in classes %}
+                                                <option value="{{ cls.id }}" {% if cls.id == a.class_assigned_id %}selected{% endif %}>
+                                                    {{ cls.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="subject[]" class="form-select" required>
+                                                {% for s in subjects %}
+                                                <option value="{{ s.id }}" {% if s.id == a.subject_name_id %}selected{% endif %}>
+                                                    {{ s.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr class="assignment-row">
+                                        <td>
+                                            <select name="assigned_class[]" class="form-select" required>
+                                                {% for cls in classes %}
+                                                <option value="{{ cls.id }}">{{ cls.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="subject[]" class="form-select" required>
+                                                {% for s in subjects %}
+                                                <option value="{{ s.id }}">{{ s.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
 
+                                </tbody>
+                            </table>
+
+                            <button type="button" id="addRow" class="btn btn-success btn-sm">
+                                + Add Assignment
+                            </button>
                         </div>
-
-
-                        <div class="row">
-
-                          <label>Subject</label>
-
-<select name="subject" class="form-control">
-    {% for subject in subjects %}
-        <option value="{{ subject.id }}">
-            {{ subject.name }}
-        </option>
-    {% endfor %}
-</select>
-
-
-                            <!-- Classes -->
-
-                            <div class="col-md-6">
-
-                                <h5 class="section-title">
-                                    Assign Classes
-                                </h5>
-
-                                <div class="checkbox-container">
-
-                                {% for class in classes %}
-
-                                <div class="form-check">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="assigned_classes"
-                                        value="{{ class.id }}"
-                                        id="class{{ class.id }}"
-
-                                        {% for a in assignments %}
-                                            {% if a.class_assigned.id == class.id %}
-                                                checked
-                                            {% endif %}
-                                        {% endfor %}
-                                    >
-
-                                    <label class="form-check-label" for="class{{ class.id }}">
-                                        {{ class.name }}
-                                    </label>
-
-                                </div>
-
-                                {% endfor %}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
 
                         <div class="text-center mt-4">
-
                             <button type="submit" class="btn btn-primary px-5">
                                 Update Teacher
                             </button>
-
-                            <a href="{% url 'teacher_list' %}" class="btn btn-secondary px-4">
+                            <a href="{% url 'result:teacher_list' %}" class="btn btn-secondary px-4">
                                 Cancel
                             </a>
-
                         </div>
 
                     </form>
 
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
+
+<script>
+document.getElementById('addRow').addEventListener('click', function () {
+    const body = document.getElementById('assignmentBody');
+    const firstRow = body.querySelector('.assignment-row');
+    const newRow = firstRow.cloneNode(true);
+
+    // reset selections in the cloned row
+    newRow.querySelectorAll('select').forEach(function (sel) {
+        sel.selectedIndex = 0;
+    });
+
+    body.appendChild(newRow);
+});
+
+document.getElementById('assignmentBody').addEventListener('click', function (e) {
+    if (e.target.classList.contains('remove-row')) {
+        const rows = document.querySelectorAll('.assignment-row');
+        if (rows.length > 1) {
+            e.target.closest('tr').remove();
+        } else {
+            alert('At least one assignment row is required.');
+        }
+    }
+});
+</script>
 
 {% endblock %}

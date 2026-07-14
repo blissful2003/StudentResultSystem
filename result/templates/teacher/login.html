@@ -53,7 +53,7 @@
         {% endfor %}
     {% endif %}
 
-    <form method="POST" action="{% url 'teacher_login' %}">
+    <form method="POST" action="{% url 'result:teacher_login' %}">
         {% csrf_token %}
 
         <div class="mb-3">
