@@ -13,13 +13,14 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from result.decorators import teacher_required
-from django.core.mail import send_mail
 from .models import Resultpublished, Teacher, TeacherAssignment, Subject, Class
 from .models import Result, Student, Subject, Marks, Class, Teacher, TeacherAssignment, generate_student_id
 from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import get_user_model
+import threading
+from django.core.mail import send_mail
 
 User = get_user_model()
 
@@ -94,23 +95,30 @@ def student_list(request):
         'classes': classes,
         'selected_class': selected_class,
     })
-@login_required(login_url='result:admin_login')
 def add_student(request):
-    if request.method == "POST" and "upload_csv" in request.POST:
-     class_id = request.POST.get("class_id")
-     class_obj = Class.objects.get(id=class_id)
-     csv_file = request.FILES["csv_file"]
 
     if request.method == 'POST':
+
         form = StudentForm(request.POST)
+
         if form.is_valid():
+
             student = form.save(commit=False)
+
             student.student_id = generate_student_id()
+
             username = student.student_id
             password = student.date_of_birth.strftime('%Y%m%d')
+
             if User.objects.filter(username=username).exists():
-                messages.error(request, f'Username {username} already exists!')
-                return render(request, 'result/add_student.html', {'form': form})
+
+                messages.error(
+                    request,
+                    f'Username {username} already exists!'
+                )
+
+                return render(request,'result/add_student.html',{'form': form,'classes': Class.objects.all()})
+
             user = User.objects.create_user(
                 username=username,
                 password=password,
@@ -119,32 +127,30 @@ def add_student(request):
                 email=student.email,
                 role='student',
             )
-            send_mail(
-                subject="Student Portal Login Credentials",
-                message=f"""Hello {student.first_name},
-                 Your Student Portal login details are:
-                       Username: {username} Password: {password}
-                 Student Portal Link:http://127.0.0.1:8000/student/login/
 
-                Please login and change your password after first login.
-                Thank you.
-                """,
-                from_email=None,recipient_list=[student.email],
+
+            email_thread = threading.Thread(
+                target=send_student_email,
+                args=(
+                    student.email,
+                    username,
+                    password
                 )
-            
+            )
+
+            email_thread.start()
             student.user = user
             student.save()
             messages.success(
                 request,
-                f'Student added! | Username: {username} | Password: {password}'
+                f'Student added! Username: {username} Password: {password}'
             )
             return redirect('result:student_list')
         else:
-          messages.error(request, form.non_field_errors().as_text().replace("* ", ""))
-          
+            messages.error(request, form.errors)
     else:
         form = StudentForm()
-    return render(request, 'result/add_student.html', {'form': form})
+    return render(request,'result/add_student.html',{'form': form,'classes': Class.objects.all()})
 
 
 @login_required(login_url='result:admin_login')
@@ -183,48 +189,35 @@ def upload_students(request):
     classes = Class.objects.all()
     if request.method == "POST":
         class_id = request.POST.get("class_id")
-        csv_file = request.FILES["csv_file"]
-        print(csv_file)
-        selected_class = Class.objects.get(id=class_id)
+        csv_file = request.FILES.get("csv_file")
 
+        if not csv_file:
+            messages.error(request, "Please select CSV file")
+            return redirect('result:upload_students')
+        selected_class = Class.objects.get(id=class_id)
         decoded_file = csv_file.read().decode("utf-8-sig").splitlines()
         reader = csv.DictReader(decoded_file)
-        count=0
-
+        count = 0
         for row in reader:
-            if Student.objects.filter(class_name=selected_class, roll_number=row['roll_number']).exists():
-                print("Roll already exits")
+            if Student.objects.filter(class_name=selected_class,roll_number=row['roll_number']).exists():
                 continue
-
             if Student.objects.filter(phone=row['phone']).exists():
-                print("Phone number already exit")
                 continue
-    
             student_id = generate_student_id()
-            print(User)
             username = student_id
             password = row['date_of_birth'].replace("-", "")
-            
-            user = User.objects.create(
+            user = User.objects.create_user(
+
                 username=username,
                 password=password,
                 first_name=row['first_name'],
                 last_name=row['last_name'],
                 email=row['email'],
-                role='student',
-            )
-            send_mail(
-                subject="Student portal Login Credentials",
-                message=f"""Hello {Student.first_name}, 
-                Your student portal Login details are:
-                    username: {username} password: {password}
-                    Student Portal Link:http://127.0.0.1:8000/student/login/
-                please Login and change your password after first login.
-                Thank you.""",
-                from_email=None,recipient_list=[Student.email],
-            )
+                role='student'
 
-            Student.objects.create(
+            )
+            
+            student = Student.objects.create(
                 user=user,
                 student_id=student_id,
                 roll_number=row['roll_number'],
@@ -238,17 +231,25 @@ def upload_students(request):
                 class_name=selected_class,
                 parent_name=row['parent_name'],
                 parent_phone=row['parent_phone'],
-                parent_email=row['parent_email'],
+                parent_email=row['parent_email']
             )
-            count += 1
-            print("Student saved:", Student.first_name, Student.student_id)
-            print("Total uploaded:", count)
+        email_thread = threading.Thread(
+            target=send_student_email, # type: ignore
+            args=(
+            student.email,
+            username,
+            password
+            )
+        )
+        email_thread.start()
+        count += 1
+        print(student.first_name)
+        print(student.student_id)
+        print("Total uploaded:", count)
     
         messages.success(request, "Students uploaded successfully!")
-        return redirect('result:student_list')
-    return render(request, "result/upload_student.html", {
-        "classes": classes
-    })
+        return redirect('result:dashboard')
+    return render(request,"result/upload_students.html",{"classes": classes})
 
 @login_required(login_url='result:admin_login')
 def add_subject(request):
@@ -508,30 +509,34 @@ def teacher_logout(request):
 @login_required(login_url='result:teacher_login')
 def teacher_dashboard(request):
     teacher = request.user.teacher
-    assignments = TeacherAssignment.objects.filter(teacher=teacher).select_related('class_assigned', 'subject_name')
+
+    assignments = TeacherAssignment.objects.filter(
+        teacher=teacher
+    ).select_related(
+        'class_assigned',
+        'subject_name'
+    )
 
     dashboard_data = []
-    for assignment in assignments:
-        students = Student.objects.filter(
-            class_name=assignment.class_assigned
-        ).order_by('roll_number')
 
+    for assignment in assignments:
+
+        students = Student.objects.filter(class_name=assignment.class_assigned).order_by('roll_number')
         student_data = []
         for student in students:
             mark = Marks.objects.filter(
-                student=student, subject=assignment.subject_name
+                student=student,
+                subject=assignment.subject_name
             ).first()
-            student_data.append({
-                'student': student,
-                'mark': mark,
-                'status': 'Pass' if mark and mark.is_pass else ('Fail' if mark else 'Not Added'),
+            student_data.append({'student': student,'mark': mark,'status': (
+                    'Pass' if mark and mark.is_pass
+                    else 'Fail' if mark
+                    else 'Not Added'
+                )
             })
-        dashboard_data.append({
-            'assignment': assignment,
-            'students': student_data,
-        })
 
-        return render(request, 'teacher/dashboard.html', {'dashboard_data': dashboard_data})
+        dashboard_data.append({'assignment': assignment,'students': student_data,})
+    return render(request,'teacher/dashboard.html',{'dashboard_data': dashboard_data})
 
 @teacher_required
 def add_mark(request, student_id, subject_id, class_id):
@@ -750,3 +755,19 @@ def publish_class(request, id):
     messages.success(request, "Result published successfully!")
     return redirect('result:publish_result')
 
+def send_student_email(email, username, password):
+    try:
+        send_mail(
+            subject="Student Account Created",
+
+            message=f"""Hello Student,Your account has been created.
+            Username: {username}
+            Password: {password}
+            Thank you.""",
+            from_email=None,
+            recipient_list=[email],
+            fail_silently=False
+        )
+        print("Email sent to:", email)
+    except Exception as e:
+        print("Email error:", e)

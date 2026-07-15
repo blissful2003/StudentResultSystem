@@ -40,4 +40,5 @@ urlpatterns = [
     path('class/add/', views.add_class, name='add_class'),
     path('publish-result/', views.publish_result, name='publish_result'),
     path('publish-result/<int:id>/', views.publish_class, name='publish_class'),
+    path('send_student_email/<int:student_id>/', views.send_student_email, name='send_student_email'),
 ]

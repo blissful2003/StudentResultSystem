@@ -149,7 +149,7 @@
         <div class="mb-3">
             <label class="form-label">Class *</label>
             {{ form.class_name }}
-            <a href="{% url 'add_class' %}?next=add_subject"
+            <a href="{% url 'result:add_class' %}?next=add_subject"
                 style="font-size:0.8rem; color:#e65100; text-decoration:none;">
                 + Add new class
             </a>
@@ -204,7 +204,7 @@
 
         <div class="d-flex gap-3 mt-4">
             <button type="submit" class="btn-save">Save</button>
-            <a href="{% url 'dashboard' %}" class="btn-cancel"> Cancel</a>
+            <a href="{% url 'result:dashboard' %}" class="btn-cancel"> Cancel</a>
         </div>
 
         {% for error in form.class_name.errors %}
