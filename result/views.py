@@ -128,17 +128,6 @@ def add_student(request):
                 role='student',
             )
 
-
-            email_thread = threading.Thread(
-                target=send_student_email,
-                args=(
-                    student.email,
-                    username,
-                    password
-                )
-            )
-
-            email_thread.start()
             student.user = user
             student.save()
             messages.success(
@@ -233,15 +222,15 @@ def upload_students(request):
                 parent_phone=row['parent_phone'],
                 parent_email=row['parent_email']
             )
-        email_thread = threading.Thread(
-            target=send_student_email, # type: ignore
-            args=(
-            student.email,
-            username,
-            password
-            )
-        )
-        email_thread.start()
+        # email_thread = threading.Thread(
+        #     target=send_student_email, # type: ignore
+        #     args=(
+        #     student.email,
+        #     username,
+        #     password
+        #     )
+        # )
+        # email_thread.start()
         count += 1
         print(student.first_name)
         print(student.student_id)
@@ -443,49 +432,38 @@ def student_own_result(request):
 @login_required(login_url='result:student_login')
 def student_result_view(request):
     student = get_object_or_404(Student, user=request.user)
-    
-    
-    marks_list = Marks.objects.filter(student=student, is_published=True)
-    
+
+    published = Resultpublished.objects.filter(
+        class_name=student.class_name,
+        is_published=True
+    ).exists()
+
+    if not published:
+        return render(request, 'student/result.html', {
+            'student': student,
+            'not_published': True,
+        })
+
+    marks_list = Marks.objects.filter(student=student)
+
     if not marks_list.exists():
         return render(request, 'student/result.html', {
             'student': student,
             'not_published': True,
         })
-    
+
     overall_pass = all(m.is_pass for m in marks_list)
     total_obtained = sum(m.marks_obtained for m in marks_list)
     total_full = sum(m.subject.full_marks for m in marks_list)
-    
-    
-    classmates = Student.objects.filter(class_name=student.class_name).order_by('roll_number')
-    
-    classmates_data = []
-    for classmate in classmates:
-        classmate_marks = Marks.objects.filter(student=classmate, is_published=True)
-        if classmate_marks.exists():
-            classmate_overall_pass = all(m.is_pass for m in classmate_marks)
-            status = 'Pass' if classmate_overall_pass else 'Fail'
-        else:
-            classmate_overall_pass = None
-            status = 'Pending'
-        
-        classmates_data.append({
-            'name': f"{classmate.first_name} {classmate.last_name}",
-            'roll_number': classmate.roll_number,
-            'is_pass': classmate_overall_pass,
-            'status': status,
-            'is_me': classmate == student,
-        })
-    
+
     context = {
         'student': student,
         'marks_list': marks_list,
         'overall_status': 'Pass' if overall_pass else 'Fail',
         'total_obtained': total_obtained,
         'total_full': total_full,
-        'classmates_data': classmates_data,
     }
+
     return render(request, 'student/result.html', context)
 
 def teacher_login(request):
@@ -540,29 +518,48 @@ def teacher_dashboard(request):
 
 @teacher_required
 def add_mark(request, student_id, subject_id, class_id):
+
     teacher = request.user.teacher
 
     assignment = get_object_or_404(
-        TeacherAssignment, teacher=teacher, class_assigned_id=class_id, subject_name_id=subject_id
+        TeacherAssignment,
+    teacher=teacher,
+    class_assigned_id=class_id,
+    subject_name_id=subject_id
     )
-    student = get_object_or_404(Student, id=student_id, class_name_id=class_id)
+
+    student = get_object_or_404(Student,id=student_id,class_name_id=class_id)
     subject = assignment.subject_name
 
-    mark_instance = Marks.objects.filter(student=student, subject=subject, is_publish=True).first()
-
+    mark_instance = Marks.objects.filter(student=student,subject=subject).first()
     if request.method == 'POST':
-        form = MarksForm(request.POST, instance=mark_instance)
+
+        form = MarksForm(
+            request.POST,
+            instance=mark_instance
+        )
+
         if form.is_valid():
+
             mark = form.save(commit=False)
             mark.student = student
             mark.subject = subject
             mark.save()
-            messages.success(request, "Marks saved successfully.")
+
+            messages.success(
+                request,
+                "Marks saved successfully."
+            )
+
             return redirect('result:teacher_dashboard')
+
+        else:
+            print(form.errors)
+
     else:
         form = MarksForm(instance=mark_instance)
 
-    return render(request, 'teacher/add_mark.html', {'form': form, 'student': student, 'subject': subject})
+    return render(request,'teacher/add_mark.html',{'form': form,'student': student,'subject': subject})
     
 
 @teacher_required
@@ -755,19 +752,19 @@ def publish_class(request, id):
     messages.success(request, "Result published successfully!")
     return redirect('result:publish_result')
 
-def send_student_email(email, username, password):
-    try:
-        send_mail(
-            subject="Student Account Created",
+# def send_student_email(email, username, password):
+#     try:
+#         send_mail(
+#             subject="Student Account Created",
 
-            message=f"""Hello Student,Your account has been created.
-            Username: {username}
-            Password: {password}
-            Thank you.""",
-            from_email=None,
-            recipient_list=[email],
-            fail_silently=False
-        )
-        print("Email sent to:", email)
-    except Exception as e:
-        print("Email error:", e)
+#             message=f"""Hello Student,Your account has been created.
+#             Username: {username}
+#             Password: {password}
+#             Thank you.""",
+#             from_email=None,
+#             recipient_list=[email],
+#             fail_silently=False
+#         )
+#         print("Email sent to:", email)
+#     except Exception as e:
+#         print("Email error:", e)

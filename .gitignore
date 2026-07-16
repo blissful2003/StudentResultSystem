@@ -1,0 +1,47 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Django database
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables (secret key, passwords)
+.env
+
+# Static and media files
+staticfiles/
+media/
+
+# Logs
+*.log
+
+# VS Code settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing files
+.pytest_cache/
+.coverage
+
+# Temporary files
+*.tmp
+*.swp
+
+# Build files
+build/
+dist/
+
+# Docker local files
+docker-compose.override.yml
