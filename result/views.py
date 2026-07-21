@@ -19,7 +19,7 @@ from .forms import StudentForm, SubjectForm, MarksForm, ClassForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import get_user_model
-import threading
+from .tasks import send_student_credentials
 from django.core.mail import send_mail
 
 User = get_user_model()
@@ -176,36 +176,48 @@ def delete_student(request, pk):
 @login_required(login_url='result:admin_login')
 def upload_students(request):
     classes = Class.objects.all()
+
     if request.method == "POST":
+
         class_id = request.POST.get("class_id")
         csv_file = request.FILES.get("csv_file")
 
         if not csv_file:
             messages.error(request, "Please select CSV file")
             return redirect('result:upload_students')
+
         selected_class = Class.objects.get(id=class_id)
+
         decoded_file = csv_file.read().decode("utf-8-sig").splitlines()
         reader = csv.DictReader(decoded_file)
+
         count = 0
+
         for row in reader:
-            if Student.objects.filter(class_name=selected_class,roll_number=row['roll_number']).exists():
+
+            if Student.objects.filter(
+                class_name=selected_class,
+                roll_number=row['roll_number']
+            ).exists():
                 continue
+
             if Student.objects.filter(phone=row['phone']).exists():
                 continue
+
             student_id = generate_student_id()
             username = student_id
             password = row['date_of_birth'].replace("-", "")
-            user = User.objects.create_user(
 
+            user = User.objects.create_user(
                 username=username,
                 password=password,
                 first_name=row['first_name'],
                 last_name=row['last_name'],
                 email=row['email'],
                 role='student'
-
             )
-            
+
+
             student = Student.objects.create(
                 user=user,
                 student_id=student_id,
@@ -222,22 +234,26 @@ def upload_students(request):
                 parent_phone=row['parent_phone'],
                 parent_email=row['parent_email']
             )
-        # email_thread = threading.Thread(
-        #     target=send_student_email, # type: ignore
-        #     args=(
-        #     student.email,
-        #     username,
-        #     password
-        #     )
-        # )
-        # email_thread.start()
-        count += 1
-        print(student.first_name)
-        print(student.student_id)
+
+
+            
+            send_student_credentials.delay(
+                student.email,
+                username,
+                password
+            )
+
+            count += 1
+
+            print(student.first_name)
+            print(student.student_id)
+
+
         print("Total uploaded:", count)
-    
-        messages.success(request, "Students uploaded successfully!")
+
+        messages.success(request,f"{count} Students uploaded successfully!")
         return redirect('result:dashboard')
+
     return render(request,"result/upload_students.html",{"classes": classes})
 
 @login_required(login_url='result:admin_login')
@@ -401,12 +417,12 @@ def student_dashboard(request):
 
     return render(request, 'student/dashboard.html', {
         'student': student,
-        'my_marks': my_marks,
+        'marks_list': my_marks,
         'total_obtained': total_obtained,
         'total_full': total_full,
         'overall_pct': overall_pct,
         'overall_grade': overall_grade,
-        'overall_pass': overall_pass,
+        'is_overall_pass': overall_pass,
     })
 
 
@@ -739,15 +755,19 @@ def publish_result(request):
 
 @login_required(login_url='result:admin_login')
 def publish_class(request, id):
+
     if not request.user.is_superuser:
       messages.error(request, "Access denied")
       return redirect('result:teacher_dashboard')
+    
     result = Resultpublished.objects.get(id=id)
     result.is_published = True
     result.published_at = timezone.now()
+    result.save()
 
     messages.success(request,f"{result.class_name.name} Result published successfully!")
     return redirect('result:publish_result')
+
 @login_required(login_url='result:admin_login')
 def publish_all_result(request):
     if not request.user.is_superuser:
@@ -760,3 +780,34 @@ def publish_all_result(request):
     messages.success(request, "All Result publish Successfully!")
     return redirect('result:publish_result')
 
+@login_required(login_url='result:admin_login')
+def cancel_publish_class(request, class_id):
+
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied")
+        return redirect('result:teacher_dashboard')
+
+    result = Resultpublished.objects.get(id=class_id)
+
+    result.is_published = False
+    result.published_at = None
+    result.save()
+
+    messages.success(request,f"{result.class_name.name} publish cancelled!")
+    return redirect('result:publish_result')
+
+@login_required(login_url='result:admin_login')
+def cancel_all_result(request):
+
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied")
+        return redirect('result:teacher_dashboard')
+
+
+    Resultpublished.objects.update(
+        is_published=False,
+        published_at=None
+    )
+
+    messages.success(request, "All result publish cancelled!")
+    return redirect('result:publish_result')

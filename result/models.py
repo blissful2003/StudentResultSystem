@@ -201,6 +201,8 @@ class Result(models.Model):
     roll_no = models.IntegerField()
     is_published = models.BooleanField(default=False)
     published_at = models.DateTimeField(null=True, blank=True)
+
+
     def __str__(self):
         return f"{self.student.username} - {self.subject}"
     

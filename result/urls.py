@@ -41,4 +41,6 @@ urlpatterns = [
     path('publish-result/', views.publish_result, name='publish_result'),
     path('publish-result/<int:id>/', views.publish_class, name='publish_class'),
     path('publish-all/', views.publish_all_result, name='publish_all_result'),
+    path('cancel_publish_class/<int:class_id>/', views.cancel_publish_class, name='cancel_publish_class'),
+    path('cancel_all_result/', views.cancel_all_result, name='cancel_all_result')
 ]
