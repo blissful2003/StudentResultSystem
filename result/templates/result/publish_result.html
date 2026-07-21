@@ -36,11 +36,9 @@ Not Published
 
 {% if not item.is_published %}
 
-<a href="{% url 'publish_class' item.id %}"
-class="btn btn-success btn-sm">
-Publish
-</a>
-
+<div class="d-flex justify-content-between align-items-center mb-3"><h3>Publish Result</h3>
+ <a href="{% url 'result:publish_all_result' %}" class="btn btn-success">Publish All</a>
+</div>
 {% endif %}
 
 </td>

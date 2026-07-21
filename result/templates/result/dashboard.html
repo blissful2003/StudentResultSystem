@@ -276,7 +276,7 @@
             {% endif %}
 
             {% for cls in classes %}
-            <a href="{% url 'download_student_credentials' cls.id %}" 
+            <a href="{% url 'result:download_student_credentials' cls.id %}" 
             class="btn btn-success">Download {{ cls.class_name }} Credentials</a>
             {% endfor %}
         </div>

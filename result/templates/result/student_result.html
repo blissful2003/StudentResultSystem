@@ -237,7 +237,7 @@
         <h4> Student Result</h4>
         <p>{{ student.first_name }} {{ student.last_name }} — Roll No: {{ student.roll_number }}</p>
     </div>
-    <a href="{% url 'student_list' %}" class="btn-back"> Back</a>
+    <a href="{% url 'result:student_list' %}" class="btn-back"> Back</a>
 </div>
 
 
@@ -327,7 +327,7 @@
                     </span>
                 </td>
                 <td>
-                    <a href="{% url 'edit_marks' mark.pk %}" style="background:#fff3e0; color:#e65100; border-radius:8px; 
+                    <a href="{% url 'result:edit_marks' mark.pk %}" style="background:#fff3e0; color:#e65100; border-radius:8px; 
               padding:5px 12px; font-size:0.8rem; font-weight:600; 
               text-decoration:none;">
                         Edit
@@ -362,7 +362,7 @@
 <div class="table-card">
     <div class="empty-state">
         <p style="font-size:1rem;">No marks added yet for this student.</p>
-        <a href="{% url 'add_marks' %}" style="background:#1a73e8; color:white; padding:8px 20px;
+        <a href="{% url 'result:add_marks' %}" style="background:#1a73e8; color:white; padding:8px 20px;
             border-radius:10px; text-decoration:none; font-weight:600;">
             + Add Marks
         </a>

@@ -347,7 +347,7 @@
         </select>
         <button type="submit" class="btn-search">Search</button>
         {% if query or selected_class %}
-        <a href="{% url 'student_list' %}" class="btn-clear">Clear</a>
+        <a href="{% url 'result:student_list' %}" class="btn-clear">Clear</a>
         {% endif %}
     </form>
 </div>
@@ -395,9 +395,9 @@
                 <td style="color:#666;">{{ student.class_name }}</td>
                 <td>
                     <div class="action-btns">
-                        <a href="{% url 'student_result' student.pk %}" class="btn-result">Result</a>
-                        <a href="{% url 'edit_student' student.pk %}" class="btn-edit">Edit</a>
-                        <a href="{% url 'delete_student' student.pk %}" class="btn-delete">Delete</a>
+                        <a href="{% url 'result:student_result' student.pk %}" class="btn-result">Result</a>
+                        <a href="{% url 'result:edit_student' student.pk %}" class="btn-edit">Edit</a>
+                        <a href="{% url 'result:delete_student' student.pk %}" class="btn-delete">Delete</a>
                     </div>
                 </td>
             </tr>
@@ -407,7 +407,7 @@
                     <div class="empty-state">
                         <div class="icon"> </div>
                         <p>No student found!</p>
-                        <a href="{% url 'student_list' %}" class="btn-search"
+                        <a href="{% url 'result:student_list' %}" class="btn-search"
                             style="text-decoration:none; padding:8px 20px; border-radius:10px;">
                             See all students
                         </a>

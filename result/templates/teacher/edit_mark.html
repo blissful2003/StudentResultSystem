@@ -8,68 +8,55 @@
 body{
     background:#f4f7fb;
 }
-
 .edit-card{
     border:none;
     border-radius:18px;
     overflow:hidden;
 }
-
 .card-header{
     background:linear-gradient(135deg,#ffc107,#ff9800);
 }
-
 .info-table th{
     background:#f8f9fa;
     width:35%;
     color:#555;
 }
-
 .info-table td{
     font-weight:500;
 }
-
 .form-control,
 .form-select{
     border-radius:10px;
     padding:10px 15px;
     transition:.3s;
 }
-
 .form-control:focus,
 .form-select:focus{
     border-color:#0d6efd;
     box-shadow:0 0 10px rgba(13,110,253,.2);
 }
-
 .form-label{
     color:#444;
 }
-
 .btn{
     border-radius:10px;
     padding:10px 22px;
     font-weight:600;
 }
-
 .btn-success{
     background:#198754;
     border:none;
 }
-
 .btn-success:hover{
     background:#157347;
 }
-
 .btn-outline-secondary:hover{
     color:white;
 }
-
 .section-title{
     font-weight:700;
     color:#0d6efd;
 }
-
 hr{
     opacity:.15;
 }
@@ -93,12 +80,10 @@ hr{
             <div class="card shadow-lg edit-card">
 
                 <div class="card-header text-dark py-4">
-
                     <h3 class="mb-0 fw-bold">
                         <i class="bi bi-pencil-square me-2"></i>
                         Edit Student Marks
                     </h3>
-
                 </div>
 
                 <div class="card-body p-5">
@@ -109,12 +94,11 @@ hr{
                     </h4>
 
                     <table class="table table-bordered align-middle info-table">
-
                         <tbody>
 
                             <tr>
                                 <th>Student Name</th>
-                                <td>{{ student.name }}</td>
+                                <td>{{ student.first_name }} {{ student.last_name }}</td>
                             </tr>
 
                             <tr>
@@ -130,13 +114,12 @@ hr{
                                 <th>Subject</th>
                                 <td>
                                     <span class="badge bg-success fs-6 px-3 py-2">
-                                        {{ subject.subject_name }}
+                                        {{ subject.name }}
                                     </span>
                                 </td>
                             </tr>
 
                         </tbody>
-
                     </table>
 
                     <hr class="my-5">
@@ -153,7 +136,6 @@ hr{
                         {% for field in form %}
 
                         <div class="mb-4">
-
                             <label class="form-label fw-semibold">
                                 {{ field.label }}
                             </label>
@@ -171,27 +153,21 @@ hr{
                                 {{ field.errors }}
                             </div>
                             {% endif %}
-
                         </div>
 
                         {% endfor %}
 
                         <div class="d-flex justify-content-between mt-5">
 
-                            <a href="{% url 'teacher_dashboard' %}"
+                            <a href="{% url 'result:teacher_dashboard' %}"
                                class="btn btn-outline-secondary">
-
                                 <i class="bi bi-arrow-left-circle me-1"></i>
                                 Back
-
                             </a>
 
-                            <button type="submit"
-                                    class="btn btn-success">
-
+                            <button type="submit" class="btn btn-success">
                                 <i class="bi bi-check-circle-fill me-1"></i>
                                 Update Marks
-
                             </button>
 
                         </div>

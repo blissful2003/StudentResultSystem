@@ -182,7 +182,7 @@ class Marks(models.Model):
             self.grade = 'D'
         else:
             self.grade = 'NG'
-
+        super().save(*args, **kwargs)
       
     def __str__(self):
         return f"{self.student} - {self.subject.name}"

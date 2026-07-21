@@ -80,23 +80,23 @@ csv_file = forms.FileField()
 class MarksForm(forms.ModelForm):
     class Meta:
         model = Marks
-        fields = ['student','subject','theory_obtained', 'practical_obtained']
+        fields = ['theory_obtained', 'practical_obtained']   # student, subject हटाइयो
         widgets = {
             'theory_obtained': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0'}),
             'practical_obtained': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0'}),
         }
 
     def __init__(self, *args, **kwargs):
-        self.subject = kwargs.pop('subject', None) 
+        self.subject = kwargs.pop('subject', None)
         super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
-        theory = cleaned_data.get('theory_obtained') 
-        practical = cleaned_data.get('practical_obtained') 
+        theory = cleaned_data.get('theory_obtained')
+        practical = cleaned_data.get('practical_obtained')
 
         subject = self.subject or (self.instance.subject if self.instance and self.instance.pk else None)
-        if not subject:
+        if not subject or theory is None or practical is None:
             return cleaned_data
 
         if theory > subject.theory_marks:

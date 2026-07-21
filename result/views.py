@@ -523,43 +523,38 @@ def add_mark(request, student_id, subject_id, class_id):
 
     assignment = get_object_or_404(
         TeacherAssignment,
-    teacher=teacher,
-    class_assigned_id=class_id,
-    subject_name_id=subject_id
+        teacher=teacher,
+        class_assigned_id=class_id,
+        subject_name_id=subject_id
     )
 
-    student = get_object_or_404(Student,id=student_id,class_name_id=class_id)
+    student = get_object_or_404(Student, id=student_id, class_name_id=class_id)
     subject = assignment.subject_name
 
-    mark_instance = Marks.objects.filter(student=student,subject=subject).first()
-    if request.method == 'POST':
+    mark_instance = Marks.objects.filter(student=student, subject=subject).first()
 
+    if request.method == 'POST':
         form = MarksForm(
             request.POST,
-            instance=mark_instance
+            instance=mark_instance,
+            subject=subject          
         )
 
         if form.is_valid():
-
             mark = form.save(commit=False)
             mark.student = student
             mark.subject = subject
             mark.save()
 
-            messages.success(
-                request,
-                "Marks saved successfully."
-            )
-
+            messages.success(request, "Marks saved successfully.")
             return redirect('result:teacher_dashboard')
-
         else:
             print(form.errors)
 
     else:
-        form = MarksForm(instance=mark_instance)
+        form = MarksForm(instance=mark_instance, subject=subject)   
 
-    return render(request,'teacher/add_mark.html',{'form': form,'student': student,'subject': subject})
+    return render(request, 'teacher/add_mark.html', {'form': form, 'student': student, 'subject': subject})
     
 
 @teacher_required
@@ -730,13 +725,15 @@ def edit_teacher(request, pk):
     return render(request, "result/edit_teacher.html", context)
 
 @login_required(login_url='result:admin_login')
-def publish_result(request, id):
+def publish_result(request):
     if not request.user.is_superuser:
         messages.error(request, "Access denied")
         return redirect('result:teacher_dashboard')
-    result = Resultpublished.objects.get(id=id)
-    result.is_published = True
-    result.published_at = timezone.now()
+    
+    result = Resultpublished.objects.all()
+    # result.is_published = True
+    # result.published_at = timezone.now()
+
     return render(request, 'result/publish_result.html', {'results': result})
 
 
@@ -749,22 +746,17 @@ def publish_class(request, id):
     result.is_published = True
     result.published_at = timezone.now()
 
-    messages.success(request, "Result published successfully!")
+    messages.success(request,f"{result.class_name.name} Result published successfully!")
+    return redirect('result:publish_result')
+@login_required(login_url='result:admin_login')
+def publish_all_result(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied")
+        return redirect('result:teacher_dashboard')
+    Resultpublished.objects.update(
+        is_published=True,
+        published_at=timezone.now()
+    )
+    messages.success(request, "All Result publish Successfully!")
     return redirect('result:publish_result')
 
-# def send_student_email(email, username, password):
-#     try:
-#         send_mail(
-#             subject="Student Account Created",
-
-#             message=f"""Hello Student,Your account has been created.
-#             Username: {username}
-#             Password: {password}
-#             Thank you.""",
-#             from_email=None,
-#             recipient_list=[email],
-#             fail_silently=False
-#         )
-#         print("Email sent to:", email)
-#     except Exception as e:
-#         print("Email error:", e)

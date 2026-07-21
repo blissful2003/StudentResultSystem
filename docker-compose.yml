@@ -5,7 +5,27 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      - ./db.sqlite3:/app/db.sqlite3
     ports:
       - "8000:8000"
     environment:
       - DEBUG=1
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: student_redis
+    ports:
+      - "6379:6379"
+
+
+  celery:
+    build: .
+    container_name: student_celery
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    
