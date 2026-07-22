@@ -23,6 +23,7 @@ urlpatterns = [
     path('student/login/', views.student_login, name='student_login'),
     path('student/logout/', views.student_logout, name='student_logout'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('student/profile/', views.student_profile, name='student_profile'),
     path('student/result/', views.student_own_result, name='student_own_result'),
     path('student/result/all/', views.student_result_view, name='student_all_results'),
     path('teacher/login/', views.teacher_login, name='teacher_login'),
@@ -42,5 +43,7 @@ urlpatterns = [
     path('publish-result/<int:id>/', views.publish_class, name='publish_class'),
     path('publish-all/', views.publish_all_result, name='publish_all_result'),
     path('cancel_publish_class/<int:class_id>/', views.cancel_publish_class, name='cancel_publish_class'),
-    path('cancel_all_result/', views.cancel_all_result, name='cancel_all_result')
+    path('cancel_all_result/', views.cancel_all_result, name='cancel_all_result'),
+    path('student/change-password/', views.student_change_password, name='student_change_password'),
+    path('student/password-setup/', views.password_setup, name='password_setup'),
 ]

@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,21 +10,21 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+
 <style>
 
 body{
     background:#f0f4ff;
     min-height:100vh;
-    font-family: 'Segoe UI', sans-serif;
+    font-family:'Segoe UI',sans-serif;
 }
 
-
-/* Navbar */
 
 .navbar{
     background:linear-gradient(135deg,#1a73e8,#0d47a1)!important;
     box-shadow:0 3px 15px rgba(0,0,0,.15);
 }
+
 
 .navbar-brand{
     color:white!important;
@@ -31,9 +32,8 @@ body{
 }
 
 
-/* Logout */
-
 .btn-logout{
+
     background:#dc3545;
     color:white;
     padding:7px 18px;
@@ -42,25 +42,18 @@ body{
     font-size:.85rem;
     font-weight:600;
     border:none;
-    cursor:pointer;
+
 }
 
-.btn-logout:hover{
-    background:#b02a37;
-    color:white;
-}
-
-
-/* Container */
 
 .main-container{
+
     max-width:1100px;
     margin:auto;
     padding:30px 15px;
+
 }
 
-
-/* Welcome */
 
 .welcome-card{
 
@@ -70,25 +63,16 @@ body{
     padding:25px;
     margin-bottom:25px;
 
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
 }
+
 
 .welcome-card h4{
+
     font-weight:800;
-    margin:0;
-}
 
-.welcome-card p{
-    margin-top:8px;
-    opacity:.85;
 }
 
 
-
-/* Summary */
 
 .summary-cards{
 
@@ -98,6 +82,7 @@ gap:18px;
 margin-bottom:25px;
 
 }
+
 
 
 .summary-card{
@@ -111,17 +96,18 @@ box-shadow:0 5px 15px rgba(0,0,0,.08);
 }
 
 
-.summary-card .label{
+
+.label{
 
 font-size:.75rem;
 color:#777;
 font-weight:700;
-text-transform:uppercase;
 
 }
 
 
-.summary-card .value{
+
+.value{
 
 font-size:1.6rem;
 font-weight:800;
@@ -130,8 +116,6 @@ margin-top:8px;
 }
 
 
-
-/* Table */
 
 .table-card{
 
@@ -143,33 +127,15 @@ box-shadow:0 5px 20px rgba(0,0,0,.08);
 }
 
 
+
 .table thead th{
 
 background:#1a73e8;
 color:white;
-padding:14px;
-border:none;
 
 }
 
 
-.table tbody td{
-
-padding:14px;
-vertical-align:middle;
-
-}
-
-
-.table tbody tr:hover{
-
-background:#f5f8ff;
-
-}
-
-
-
-/* Status */
 
 .status-badge{
 
@@ -197,69 +163,108 @@ color:#c62828;
 }
 
 
-
 .site-footer{
 
 text-align:center;
 padding:25px;
 color:#777;
-font-size:.85rem;
 
 }
 
-
-@media(max-width:600px){
-
-.welcome-card{
-    flex-direction:column;
-    align-items:flex-start;
-}
-
-}
 
 </style>
 
+
 </head>
-{% if marks_list %}
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
-    <div id="resultToast" class="toast align-items-center border-0 {% if is_overall_pass %}text-bg-success{% else %}text-bg-danger{% endif %}" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                {% if is_overall_pass %}
-                    🎉 Congratulations {{ student.first_name }}! You have successfully passed your examination.
-                {% else %}
-                    Sorry {{ student.first_name }}, you have not passed this examination. Keep working hard — better results are ahead!
-                {% endif %}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
+
 
 <body>
 
 
+
+{% if marks_list %}
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+
+<div id="resultToast"
+class="toast text-bg-success border-0">
+
+<div class="d-flex">
+
+<div class="toast-body">
+
+{% if is_overall_pass %}
+
+🎉 Congratulations {{ student.first_name }}! 
+You have passed your examination.
+
+{% else %}
+
+Sorry {{ student.first_name }},
+better results are ahead.
+
+{% endif %}
+
+</div>
+
+
+<button type="button"
+class="btn-close btn-close-white me-2 m-auto"
+data-bs-dismiss="toast">
+
+</button>
+
+
+</div>
+
+</div>
+
+</div>
+
+{% endif %}
+
+
+
+
+
 <nav class="navbar navbar-expand-lg">
+
 
 <div class="container">
 
-<a class="navbar-brand" href="{% url 'result:student_dashboard' %}">
-🎓 <span aria-hidden="true"></span>Student Panel
+
+<a class="navbar-brand"
+href="{% url 'result:student_dashboard' %}">
+
+🎓 Student Panel
+
 </a>
+
 
 
 <div class="ms-auto d-flex align-items-center gap-3">
 
-<span style="color:white;">
+
+<span style="color:white">
+
 {{ request.user.username }}
+
 </span>
 
 
-<form method="post" action="{% url 'result:student_logout' %}" class="m-0">
-    {% csrf_token %}
-    <button type="submit" class="btn-logout">
-        Logout
-    </button>
+
+<form method="post"
+action="{% url 'result:student_logout' %}">
+
+{% csrf_token %}
+
+<button class="btn-logout">
+
+Logout
+
+</button>
+
+
 </form>
 
 
@@ -268,7 +273,9 @@ font-size:.85rem;
 
 </div>
 
+
 </nav>
+
 
 
 
@@ -276,17 +283,18 @@ font-size:.85rem;
 <div class="main-container">
 
 
+
 {% if messages %}
 
 {% for msg in messages %}
 
-<div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
 
-{{ msg }}
+<div class="alert alert-{{msg.tags}}">
 
-<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+{{msg}}
 
 </div>
+
 
 {% endfor %}
 
@@ -295,32 +303,31 @@ font-size:.85rem;
 
 
 
-<!-- Welcome -->
+
 
 <div class="welcome-card">
 
-<div>
 
 <h4>
-Welcome, {{ student.first_name }} <span aria-hidden="true">👋</span>
+
+Welcome, {{student.first_name}} 👋
+
 </h4>
 
+
 <p>
-{{ student.class_name }} |
-Roll No: {{ student.roll_number }}
+
+{{student.class_name}}
+|
+Roll No: {{student.roll_number}}
+
 </p>
 
-</div>
-
 
 </div>
 
 
 
-
-
-
-<!-- Summary -->
 
 
 <div class="summary-cards">
@@ -333,10 +340,13 @@ Percentage
 </div>
 
 <div class="value text-primary">
-{{ overall_pct|floatformat:2 }}%
+
+{{overall_pct}}%
+
 </div>
 
 </div>
+
 
 
 
@@ -348,7 +358,9 @@ Obtained
 </div>
 
 <div class="value text-success">
-{{ total_obtained }}
+
+{{total_obtained}}
+
 </div>
 
 </div>
@@ -364,7 +376,9 @@ Full Marks
 </div>
 
 <div class="value">
-{{ total_full }}
+
+{{total_full}}
+
 </div>
 
 </div>
@@ -380,11 +394,12 @@ Grade
 </div>
 
 <div class="value text-warning">
-{{ overall_grade }}
-</div>
+
+{{overall_grade}}
 
 </div>
 
+</div>
 
 
 
@@ -398,11 +413,13 @@ Result
 
 <div class="value">
 
+
 {% if is_overall_pass %}
 
 <span class="text-success">
 PASS
 </span>
+
 
 {% else %}
 
@@ -410,10 +427,9 @@ PASS
 FAIL
 </span>
 
+
 {% endif %}
 
-</div>
-
 
 </div>
 
@@ -422,12 +438,12 @@ FAIL
 
 
 
+</div>
 
 
 
 
 
-<!-- Result Table -->
 
 
 <div class="table-card">
@@ -444,20 +460,28 @@ FAIL
 <tr>
 
 <th>Subject</th>
+
 <th>Theory</th>
+
 <th>Practical</th>
+
 <th>Total</th>
+
 <th>Grade</th>
+
 <th>Status</th>
 
 
 </tr>
 
+
 </thead>
 
 
 
+
 <tbody>
+
 
 
 {% for mark in marks_list %}
@@ -467,29 +491,37 @@ FAIL
 
 
 <td>
-{{ mark.subject.name }}
+
+{{mark.subject.name}}
+
 </td>
 
 
 <td>
-{{ mark.theory_obtained }}
+
+{{mark.theory_obtained}}
+
 </td>
 
 
 <td>
-{{ mark.practical_obtained }}
+
+{{mark.practical_obtained}}
+
 </td>
 
 
 <td>
-<strong>
-{{ mark.marks_obtained }}
-</strong>
+
+{{mark.marks_obtained}}
+
 </td>
 
 
 <td>
-{{ mark.grade }}
+
+{{mark.grade}}
+
 </td>
 
 
@@ -520,7 +552,9 @@ FAIL
 </tr>
 
 
+
 {% empty %}
+
 
 
 <tr>
@@ -532,6 +566,7 @@ No result published yet.
 </td>
 
 </tr>
+
 
 
 {% endfor %}
@@ -548,7 +583,14 @@ No result published yet.
 
 
 </div>
+
+
+
 </div>
+
+
+
+
 
 <div class="site-footer">
 
@@ -556,19 +598,35 @@ Student Result Management System
 
 </div>
 
+
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var toastEl = document.getElementById('resultToast');
-        if (toastEl) {
-            var toast = new bootstrap.Toast(toastEl, { delay: 6000 });
-            toast.show();
-        }
-    });
+
+document.addEventListener("DOMContentLoaded",function(){
+
+let toast=document.getElementById("resultToast");
+
+if(toast){
+
+new bootstrap.Toast(toast,{
+delay:6000
+}).show();
+
+}
+
+});
+
+
 </script>
-{% endif %}
+
+
 
 </body>
+
 </html>

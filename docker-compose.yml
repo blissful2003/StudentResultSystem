@@ -8,8 +8,8 @@ services:
       - ./db.sqlite3:/app/db.sqlite3
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=True
+    env_file:
+      - .env
     depends_on:
       - redis
 
@@ -26,6 +26,8 @@ services:
     command: celery -A config worker --loglevel=info
     volumes:
       - .:/app
+    env_file:
+      - .env
     depends_on:
       - redis
     

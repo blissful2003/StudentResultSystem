@@ -95,6 +95,7 @@ def student_list(request):
         'classes': classes,
         'selected_class': selected_class,
     })
+@login_required(login_url='result:admin_login')
 def add_student(request):
 
     if request.method == 'POST':
@@ -130,10 +131,13 @@ def add_student(request):
 
             student.user = user
             student.save()
-            messages.success(
-                request,
-                f'Student added! Username: {username} Password: {password}'
+            send_student_credentials.delay(
+                student.email,
+                student.first_name,
+                username,
+                password
             )
+            messages.success(request, f'Student added! Username: {username} Password: {password}')
             return redirect('result:student_list')
         else:
             messages.error(request, form.errors)
@@ -234,11 +238,10 @@ def upload_students(request):
                 parent_phone=row['parent_phone'],
                 parent_email=row['parent_email']
             )
-
-
-            
+  
             send_student_credentials.delay(
                 student.email,
+                student.first_name,
                 username,
                 password
             )
@@ -247,7 +250,6 @@ def upload_students(request):
 
             print(student.first_name)
             print(student.student_id)
-
 
         print("Total uploaded:", count)
 
@@ -368,9 +370,17 @@ def student_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
         if user and hasattr(user, 'student_profile'):
             auth_login(request, user)
+            student = user.student_profile
+            if student.must_change_password:
+             return redirect("result:password_setup")
             return redirect('result:student_dashboard')
         else:
             messages.error(request, 'Invalid username or password!')
@@ -425,7 +435,15 @@ def student_dashboard(request):
         'is_overall_pass': overall_pass,
     })
 
+def student_profile(request):
 
+    student = request.user.student
+
+    context = {
+        'student': student
+    }
+
+    return render(request, 'result/student_profile.html', context)
 
 @login_required(login_url='result:student_login')
 def student_own_result(request):
@@ -811,3 +829,43 @@ def cancel_all_result(request):
 
     messages.success(request, "All result publish cancelled!")
     return redirect('result:publish_result')
+
+
+@login_required(login_url='result:student_login')
+def student_change_password(request):
+    form = PasswordChangeForm(
+        request.user,
+        request.POST or None
+    )
+    for field in form.fields.values():
+     field.widget.attrs.update({
+        'class':'form-control'
+    })
+    if form.is_valid():
+        user = form.save()
+        update_session_auth_hash(
+            request,
+            user
+        )
+        student = request.user.student_profile
+        student.must_change_password = False
+        student.save()
+
+        messages.success(request, "Password changed successfully!")
+        return redirect('result:student_dashboard')
+    return render(request, 'student/student_change_password.html', {'form': form})
+
+@login_required(login_url='result:student_login')
+def password_setup(request):
+    student = request.user.student_profile
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "keep":
+            student.must_change_password = False
+            student.save()
+            return redirect(
+                "result:student_dashboard"
+            )
+        elif action == "change":
+            return redirect("result:student_change_password")
+    return render(request, "student/password_setup.html")
