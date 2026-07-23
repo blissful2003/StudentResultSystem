@@ -48,7 +48,7 @@ urlpatterns = [
     path('cancel_all_result/', views.cancel_all_result, name='cancel_all_result'),
     path('student/change-password/', views.student_change_password, name='student_change_password'),
     path('student/password-setup/', views.password_setup, name='password_setup'),
-    path('student/forgot-password/', auth_views.PasswordResetView.as_view(template_name='student/forgot_password.html'), name='password_reset'),
+    path('student/forgot-password/', auth_views.PasswordResetView.as_view(template_name='student/forgot_password.html', email_template_name='registration/password_reset_email.html',subject_template_name='registration/password_reset_subject.txt'), name='password_reset'),
     path('student/forgot-password/done/', auth_views.PasswordResetDoneView.as_view( template_name='student/password_reset_done.html'), name='password_reset_done'),
     path('student/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='student/password_reset_confirm.html'), name='password_reset_confirm'),
     path('student/reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='student/password_reset_complete.html'), name='password_reset_complete'),

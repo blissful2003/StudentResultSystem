@@ -435,15 +435,18 @@ def student_dashboard(request):
         'is_overall_pass': overall_pass,
     })
 
+@login_required(login_url='result:student_login')
 def student_profile(request):
-
-    student = request.user.student
+    try:
+        student = request.user.student_profile
+    except:
+        return redirect('result:student_login')
 
     context = {
         'student': student
     }
 
-    return render(request, 'result/student_profile.html', context)
+    return render(request, 'student/student_profile.html', context)
 
 @login_required(login_url='result:student_login')
 def student_own_result(request):
@@ -564,6 +567,7 @@ def teacher_dashboard(request):
 
 @teacher_required
 def add_mark(request, student_id, subject_id, class_id):
+    print("View reached")
 
     teacher = request.user.teacher
 

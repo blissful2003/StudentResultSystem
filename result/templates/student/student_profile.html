@@ -1,4 +1,4 @@
-{% extends 'result/dashboard.html' %}
+{% extends 'student/dashboard.html' %}
 
 {% block content %}
 
@@ -9,7 +9,7 @@
         <div class="card-header bg-primary text-white">
             <h4>Student Profile</h4>
             <li>
-    <a href="{% url 'student_profile' %}">
+    <a href="{% url 'result:student_profile' %}">
         <i class="fa fa-user"></i>
         My Profile
     </a>
@@ -62,10 +62,6 @@
 
             </table>
 
-
-            <a href="#" class="btn btn-primary">
-                Edit Profile
-            </a>
 
 
         </div>
