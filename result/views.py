@@ -499,6 +499,18 @@ def student_result_view(request):
     }
 
     return render(request, 'student/result.html', context)
+def teacher_profile(request):
+    teacher = Teacher.objects.get(user=request.user)
+    assignments = TeacherAssignment.objects.filter(
+        teacher=teacher
+    ).select_related('class_assigned', 'subject_name')
+
+    context = {
+        'teacher': teacher,
+        'assignments': assignments,
+    }
+
+    return render(request, 'result/teacher/profile.html', context)
 
 def teacher_login(request):
     if request.method =='POST':

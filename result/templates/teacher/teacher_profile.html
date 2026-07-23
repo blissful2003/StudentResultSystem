@@ -1,0 +1,15 @@
+<h5>Assigned Classes</h5>
+
+{% if assignments %}
+    <ul>
+        {% for assignment in assignments %}
+            <li>
+                {{ assignment.class_assigned.name }}
+                -
+                {{ assignment.subject_name.name }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No class assigned.</p>
+{% endif %}

@@ -1,4 +1,5 @@
 app_name = 'result'
+from django.contrib.auth import views as auth_views
 from django.urls import path
 from . import views
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path('teacher/login/', views.teacher_login, name='teacher_login'),
     path('teacher/logout/', views.teacher_logout, name='teacher_logout'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('teacher/profile/', views.teacher_profile, name='teacher_profile'),
     path('teacher/', views.teacher_list, name='teacher_list'),
     path('teacher/add/', views.add_teacher, name='add_teacher'),
     path("teacher/edit/<int:pk>/", views.edit_teacher, name="edit_teacher"),
@@ -46,4 +48,8 @@ urlpatterns = [
     path('cancel_all_result/', views.cancel_all_result, name='cancel_all_result'),
     path('student/change-password/', views.student_change_password, name='student_change_password'),
     path('student/password-setup/', views.password_setup, name='password_setup'),
+    path('student/forgot-password/', auth_views.PasswordResetView.as_view(template_name='student/forgot_password.html'), name='password_reset'),
+    path('student/forgot-password/done/', auth_views.PasswordResetDoneView.as_view( template_name='student/password_reset_done.html'), name='password_reset_done'),
+    path('student/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='student/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('student/reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='student/password_reset_complete.html'), name='password_reset_complete'),
 ]
